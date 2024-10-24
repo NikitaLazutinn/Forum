@@ -1,12 +1,34 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Redirect,
+  Param,
+} from '@nestjs/common';
+//import { createDto } from './dto/Create.dto';
 import { AppService } from './app.service';
+import { RegisterDto } from './dto/RegisterDto';
 
-@Controller()
+@Controller('auth')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly Service: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Post()
+  Register(@Body() RegisterDto: RegisterDto) {
+    return this.Service.create(RegisterDto);
+  }
+
+  @Get(':num')
+  @Redirect()
+  async redirect(@Param('num') num: number) {
+    const link = await this.Service.GetLink(num);
+    return { url: link };
+  }
+
+  @Get('/stats/:num')
+  async stats(@Param('num') num: number) {
+    const stats = await this.Service.getStatistic(num);
+    return stats;
   }
 }

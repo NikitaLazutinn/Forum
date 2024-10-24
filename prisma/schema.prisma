@@ -16,60 +16,63 @@ datasource db {
 model Role {
   id    Int    @id @default(autoincrement())
   name  String @unique
+  discription String
   users User[]
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  roleId    Int      
-  role      Role     @relation(fields: [roleId], references: [id])
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  lastLoggedIn DateTime @default(now())
-  posts     Post[]   @relation 
-  likes     Like[]   @relation 
-  comments  comment[] @relation
+  id           Int       @id @default(autoincrement())
+  roleId       Int
+  role         Role      @relation(fields: [roleId], references: [id])
+  email        String    @unique
+  name         String?
+  password     String
+  createdAt    DateTime  @default(now())
+  lastLoggedIn DateTime  @default(now())
+  posts        Post[]    @relation
+  likes        Like[]    @relation
+  comments     comment[] @relation
 }
 
 model Post {
-  id         Int          @id @default(autoincrement())
+  id         Int        @id @default(autoincrement())
   title      String
   content    String?
-  published  Boolean       @default(false)
-  likes      Like[]        @relation("PostLikes")
-  comments   comment[]     @relation("PostComments")  
-  authorId   Int            
-  Time       DateTime      @default(now()) 
-  author     User          @relation(fields: [authorId], references: [id])
-  categories category[]   @relation("PostCategories")
+  published  Boolean    @default(false)
+  likes      Like[]     @relation("PostLikes")
+  comments   comment[]  @relation("PostComments")
+  authorId   Int
+  author     User       @relation(fields: [authorId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now())
+  categories category[] @relation("PostCategories")
 }
 
 model category {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
   description String
-  posts       Post[]      @relation("PostCategories")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  posts       Post[]   @relation("PostCategories")
 }
 
 model Like {
-  id       Int      @id @default(autoincrement())
-  userId   Int
-  postId   Int
-  time     DateTime @default(now()) 
-  post     Post     @relation("PostLikes", fields: [postId], references: [id]) 
-  user     User     @relation(fields: [userId], references: [id]) 
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  createdAt DateTime @default(now())
+  post      Post     @relation("PostLikes", fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
-model comment{
-  id Int @id @default(autoincrement())
-  UserId Int
-  PostId Int
-  Time   DateTime @default(now())
-  Text   String 
-  userId   Int
-  postId   Int
-  post     Post     @relation("PostComments", fields: [postId], references: [id]) 
-  user     User     @relation(fields: [userId], references: [id]) 
+model comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  postId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  post      Post     @relation("PostComments", fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
