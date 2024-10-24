@@ -45,7 +45,7 @@ model Post {
   author     User       @relation(fields: [authorId], references: [id])
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @default(now())
-  categories category[] @relation("PostCategories")
+  categories CategoriesOnPosts[]  
 }
 
 model category {
@@ -54,7 +54,17 @@ model category {
   description String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
-  posts       Post[]   @relation("PostCategories")
+  posts       CategoriesOnPosts[]  
+}
+
+
+model CategoriesOnPosts {
+  postId     Int
+  categoryId Int
+  post       Post     @relation(fields: [postId], references: [id])
+  category   category @relation(fields: [categoryId], references: [id])
+
+  @@id([postId, categoryId])
 }
 
 model Like {
