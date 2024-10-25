@@ -1,34 +1,17 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Redirect,
-  Param,
-} from '@nestjs/common';
-//import { createDto } from './dto/Create.dto';
-import { AppService } from './app.service';
+import { Controller, Post, Body } from '@nestjs/common';
+import { UserService } from './user.service';
 import { RegisterDto } from './dto/RegisterDto';
+import { UserResponseDto } from './dto/userResponceDto';
 
-@Controller('auth')
+@Controller()
 export class AppController {
-  constructor(private readonly Service: AppService) {}
+  constructor(private readonly userService: UserService) {}
 
-  @Post()
-  Register(@Body() RegisterDto: RegisterDto) {
-    return this.Service.create(RegisterDto);
-  }
-
-  @Get(':num')
-  @Redirect()
-  async redirect(@Param('num') num: number) {
-    const link = await this.Service.GetLink(num);
-    return { url: link };
-  }
-
-  @Get('/stats/:num')
-  async stats(@Param('num') num: number) {
-    const stats = await this.Service.getStatistic(num);
-    return stats;
+  @Post('user')
+  async signupUser(
+    @Body()
+    userData: RegisterDto,
+  ): Promise<UserResponseDto> {
+    return await this.userService.createUser(userData);
   }
 }
