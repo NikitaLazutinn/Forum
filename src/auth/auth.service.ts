@@ -49,7 +49,7 @@ export class AuthService {
       return {
         statusCode: 201,
         message: 'User created successfully',
-        properties: user
+        properties: {name: user.name, email: user.email}
       };
     } catch (error) {
       throw error;
@@ -81,8 +81,10 @@ export class AuthService {
         throw new BadRequestException('Invalid password');
       }
 
-      const accessToken = this.generateAccessToken(existingUser);
-      const refreshToken = this.generateRefreshToken(existingUser);
+      const tokenParametrs = {id:existingUser.id, roleId:existingUser.roleId};
+
+      const accessToken = this.generateAccessToken(tokenParametrs);
+      const refreshToken = this.generateRefreshToken(tokenParametrs);
 
       return {
         name: existingUser.name,
@@ -94,11 +96,11 @@ export class AuthService {
     }
   }
 
-  private generateAccessToken(user: User): string {
-    return this.jwtService.sign(user);
+  private generateAccessToken(params: {id:number, roleId:number}): string {
+    return this.jwtService.sign(params);
   }
 
-  private generateRefreshToken(user: User): string {
-    return this.jwtService.sign(user, { expiresIn: '7d' });
+  private generateRefreshToken(params: {id:number, roleId:number}): string {
+    return this.jwtService.sign(params, { expiresIn: '7d' });
   }
 }
