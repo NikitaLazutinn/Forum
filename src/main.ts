@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 //import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+//import { randomBytes } from 'crypto';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,5 +19,9 @@ async function bootstrap() {
   // SwaggerModule.setup('api', app, document);
   console.log('port 3000');
   await app.listen(3000);
+
+
+  // const secret = randomBytes(32).toString('hex'); // Генерує випадковий 64-символьний ключ
+  // console.log(secret);
 }
 bootstrap();
