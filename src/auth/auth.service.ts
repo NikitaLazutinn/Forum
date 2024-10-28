@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/RegisterDto';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
@@ -7,7 +7,7 @@ import { UserResponseDto } from './dto/userResponceDto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
-export class UserService {
+export class AuthService {
   constructor(private prisma: PrismaService) {}
 
   async createUser(data: RegisterDto): Promise<UserResponseDto> {
@@ -23,7 +23,9 @@ export class UserService {
         where: { email: data.email },
       });
 
-      if (existingUser == null) {
+      if (existingUser != null) {
+        throw new BadRequestException('User already exists');
+      } else {
         if (data.password !== data.confirmPassword) {
           throw new BadRequestException('Passwords do not match');
         }
@@ -44,8 +46,6 @@ export class UserService {
           message: 'User created successfully',
           properties: user,
         };
-      } else {
-        throw new BadRequestException('User already exists');
       }
     } catch (error) {
       throw error;
