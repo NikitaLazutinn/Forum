@@ -1,42 +1,133 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { CreateUserDto, Delete_UserDto, FindUserDto, Update_UserDto } from './dto/create-user.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import * as jwt from 'jsonwebtoken';
-import { User } from '@prisma/client';
 
 
 @Injectable()
 export class UserService {
-  decode(data){
-    try{
-    const secret = process.env.JWT_SECRET;
-    const verifiedPayload = jwt.verify(data.token, secret); 
-    return verifiedPayload;
-    }catch(err){
+  constructor(private prisma: PrismaService) {}
+  decode(data) {
+    try {
+      const secret = process.env.JWT_SECRET;
+      const verified = jwt.verify(data, secret);
+      return verified;
+    } catch (err) {
       console.log(err);
       throw new BadRequestException('Invalid token');
     }
-    
   }
   create(createUserDto: CreateUserDto) {
+    const data = this.decode(createUserDto.token);
+    if (data['roleId'] == 0) {
+      throw new BadRequestException('You are not admin!');
+    }
     return 'This action adds a new user';
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    try {
+      const all = await this.prisma.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          createdAt: true,
+          lastLoggedIn: true,
+        },
+      });
+      return {
+        statusCode: 200,
+        users: all,
+      };
+    } catch (err) {
+      throw new NotFoundException(err);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        lastLoggedIn: true,
+      },
+    });
+    if (user == null) {
+      throw new NotFoundException(`There is no user with id: ${id}`);
+    }
+    return {
+      statusCode: 200,
+      user: user,
+    };
   }
 
-  update(token:string) {
-    //if(id == req)
-    const data = this.decode(token);
-    return data;
+  async update(UpdateUserDto: Update_UserDto) {
+    const token_data = this.decode(UpdateUserDto.token);
+    const params = UpdateUserDto.params;
+    if (token_data['roleId'] != 1 && token_data['id'] != UpdateUserDto.id) {
+      throw new BadRequestException(
+        'Only admin can update parametrs of other users!',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: UpdateUserDto.id },
+    });
+    if (user == null) {
+      throw new NotFoundException(
+        `There is no user with id: ${UpdateUserDto.id}`,
+      );
+    }
+
+    if (params.email.length > 0) {
+      await this.prisma.user.update({
+        where: { id: UpdateUserDto.id },
+        data: {
+          email: params.email,
+        },
+      });
+    }
+
+    if (params.name.length > 0) {
+      await this.prisma.user.update({
+        where: { id: UpdateUserDto.id },
+        data: {
+          name: params.name,
+        },
+      });
+    }
+
+    return {
+      statusCode: 201,
+      message: 'User updated successfully',
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(DeleteUserDto: Delete_UserDto) {
+    const token_data = this.decode(DeleteUserDto.token);
+    if (token_data['roleId'] != 1 && token_data['id'] != DeleteUserDto.id) {
+      throw new BadRequestException(
+        'Only admin can delete other users!',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: DeleteUserDto.id },
+    });
+    if (user == null) {
+      throw new NotFoundException(
+        `There is no user with id: ${DeleteUserDto.id}`,
+      );
+    }
+    await this.prisma.user.delete({ where: { id: DeleteUserDto.id } });
+
+    return {
+      statusCode: 204,
+      message: 'User deleted successfully',
+    };
   }
 }
