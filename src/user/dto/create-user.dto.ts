@@ -2,10 +2,6 @@ export class CreateUserDto {
   token: string;
 }
 
-export class FindUserDto {
-  id: number;
-}
-
 export class Update_UserDto {
   token: string;
   id: number;

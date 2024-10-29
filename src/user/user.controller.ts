@@ -9,8 +9,11 @@ import {
   Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, Delete_UserDto, Update_UserDto } from './dto/create-user.dto';
-
+import {
+  CreateUserDto,
+  Delete_UserDto,
+  Update_UserDto,
+} from './dto/create-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -28,7 +31,7 @@ export class UserController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+    return this.userService.findById(+id);
   }
 
   @Patch('edit')

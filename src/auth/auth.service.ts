@@ -7,11 +7,13 @@ import { plainToClass } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { logInDto, logInResponceDto } from './dto/logInDto';
 import { User } from '@prisma/client';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
+    private user_service: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -24,9 +26,7 @@ export class AuthService {
     }
 
     try {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email: data.email },
-      });
+      const existingUser = await this.user_service.findEmail(data.email);
 
       if (existingUser != null) {
         throw new BadRequestException('User already exists');

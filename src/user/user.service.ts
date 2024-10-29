@@ -1,12 +1,30 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateUserDto, Delete_UserDto, FindUserDto, Update_UserDto } from './dto/create-user.dto';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  CreateUserDto,
+  Delete_UserDto,
+  Update_UserDto,
+} from './dto/create-user.dto';
+import { validate } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
 import * as jwt from 'jsonwebtoken';
-
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
+
+  async checkData(dto, data) {
+    const registerDto = plainToClass(dto, data);
+
+    const errors = await validate(registerDto);
+    if (errors.length > 0) {
+      throw new BadRequestException('Invalid data format');
+    }
+  }
   decode(data) {
     try {
       const secret = process.env.JWT_SECRET;
@@ -17,7 +35,8 @@ export class UserService {
       throw new BadRequestException('Invalid token');
     }
   }
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
+    await this.checkData(CreateUserDto, createUserDto);
     const data = this.decode(createUserDto.token);
     if (data['roleId'] == 0) {
       throw new BadRequestException('You are not admin!');
@@ -45,7 +64,7 @@ export class UserService {
     }
   }
 
-  async findOne(id: number) {
+  async findById(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: id },
       select: {
@@ -65,7 +84,28 @@ export class UserService {
     };
   }
 
+  async findEmail(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        lastLoggedIn: true,
+      },
+    });
+    if (user == null) {
+      throw new NotFoundException(`There is no user with email: ${email}`);
+    }
+    return {
+      statusCode: 200,
+      user: user,
+    };
+  }
+
   async update(UpdateUserDto: Update_UserDto) {
+    await this.checkData(Update_UserDto, UpdateUserDto);
     const token_data = this.decode(UpdateUserDto.token);
     const params = UpdateUserDto.params;
     if (token_data['roleId'] != 1 && token_data['id'] != UpdateUserDto.id) {
@@ -108,11 +148,10 @@ export class UserService {
   }
 
   async remove(DeleteUserDto: Delete_UserDto) {
+    await this.checkData(Delete_UserDto, DeleteUserDto);
     const token_data = this.decode(DeleteUserDto.token);
     if (token_data['roleId'] != 1 && token_data['id'] != DeleteUserDto.id) {
-      throw new BadRequestException(
-        'Only admin can delete other users!',
-      );
+      throw new BadRequestException('Only admin can delete other users!');
     }
 
     const user = await this.prisma.user.findUnique({
