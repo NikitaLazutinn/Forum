@@ -5,7 +5,7 @@ export class CreateUserDto {
 export class Update_UserDto {
   token: string;
   id: number;
-  params: { name: string; email: string } = { name: '', email: '' };
+  params: { name: string; email: string; password: string } = { name: '', email: '', password: '' };
 }
 
 export class Delete_UserDto {

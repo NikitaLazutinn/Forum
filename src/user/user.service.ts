@@ -142,6 +142,15 @@ export class UserService {
       });
     }
 
+    if (params.password.length > 0) {
+      await this.prisma.user.update({
+        where: { id: UpdateUserDto.id },
+        data: {
+          password: params.password,
+        },
+      });
+    }
+
     return {
       statusCode: 201,
       message: 'User updated successfully',

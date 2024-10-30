@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,6 +12,7 @@ import { plainToClass } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { logInDto, logInResponceDto } from './dto/logInDto';
 import { UserService } from 'src/user/user.service';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
@@ -113,8 +115,9 @@ export class AuthService {
   }
 
   async sendResetPasswordLink(email: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) {
+    const responce = await this.user_service.findEmail(email);
+    const user = responce.user;
+    if (user === null) {
       throw new NotFoundException('User not found');
     }
 
@@ -123,5 +126,41 @@ export class AuthService {
       { expiresIn: '1h' },
     );
     const resetLink = `https://your-frontend-url.com/reset-password?token=${token}`;
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Password Reset Request',
+      text: `To reset your password, please click the following link: ${resetLink}`,
+      html: `<p>To reset your password, please click the following link:</p><a href="${resetLink}">Reset Password</a>`,
+    };
+
+    
+    await transporter.sendMail(mailOptions);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      const payload = this.jwtService.verify(token);
+      const userId = payload.userId;
+
+      const hashedPassword:string = await this.hashPassword(newPassword);
+      const dtoData = {
+        token: token,
+        id: userId,
+        params: { name: '', email: '', password: hashedPassword },
+      };
+      await this.user_service.update_user(dtoData);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
   }
 }
