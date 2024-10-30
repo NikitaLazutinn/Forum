@@ -12,7 +12,7 @@ export class AuthController {
     @Body()
     userData: RegisterDto,
   ): Promise<RegisterResponseDto> {
-    return await this.authService.createUser(userData);
+    return await this.authService.register(userData);
   }
 
   @Post('logIn')
@@ -21,5 +21,10 @@ export class AuthController {
     userData: logInDto,
   ): Promise<logInResponceDto> {
     return await this.authService.logIn(userData);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() email: string) {
+    return await this.authService.sendResetPasswordLink(email);
   }
 }

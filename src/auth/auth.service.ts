@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, RegisterResponseDto } from './dto/RegisterDto';
@@ -6,7 +10,6 @@ import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { logInDto, logInResponceDto } from './dto/logInDto';
-import { User } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -17,11 +20,11 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async hashing(password){
+  async hashPassword(password) {
     return await bcrypt.hash(password, 10);
   }
 
-  async createUser(data: RegisterDto): Promise<RegisterResponseDto> {
+  async register(data: RegisterDto): Promise<RegisterResponseDto> {
     const registerDto = plainToClass(RegisterDto, data);
 
     const errors = await validate(registerDto);
@@ -30,16 +33,16 @@ export class AuthService {
     }
 
     try {
-      const existingUser = await this.user_service.findEmail(data.email);
+      const responce = await this.user_service.findEmail(data.email);
 
-      if (existingUser != null) {
+      if (responce.user !== null) {
         throw new BadRequestException('User already exists');
       }
       if (data.password !== data.confirmPassword) {
         throw new BadRequestException('Passwords do not match');
       }
 
-      const hashedPassword = await this.hashing(data.password);
+      const hashedPassword = await this.hashPassword(data.password);
       data.password = hashedPassword;
       const lastKey = Object.keys(data).pop();
       if (lastKey) {
@@ -51,7 +54,7 @@ export class AuthService {
       return {
         statusCode: 201,
         message: 'User created successfully',
-        properties: {name: user.name, email: user.email}
+        properties: { name: user.name, email: user.email },
       };
     } catch (error) {
       throw error;
@@ -70,7 +73,7 @@ export class AuthService {
         where: { email: data.email },
       });
 
-      if (existingUser == null) {
+      if (existingUser === null) {
         throw new NotFoundException('No such user registered');
       }
 
@@ -83,7 +86,10 @@ export class AuthService {
         throw new BadRequestException('Invalid password');
       }
 
-      const tokenParametrs = {id:existingUser.id, roleId:existingUser.roleId};
+      const tokenParametrs = {
+        id: existingUser.id,
+        roleId: existingUser.roleId,
+      };
 
       const accessToken = this.generateAccessToken(tokenParametrs);
       const refreshToken = this.generateRefreshToken(tokenParametrs);
@@ -98,11 +104,24 @@ export class AuthService {
     }
   }
 
-  private generateAccessToken(params: {id:number, roleId:number}): string {
+  private generateAccessToken(params: { id: number; roleId: number }): string {
     return this.jwtService.sign(params);
   }
 
-  private generateRefreshToken(params: {id:number, roleId:number}): string {
+  private generateRefreshToken(params: { id: number; roleId: number }): string {
     return this.jwtService.sign(params, { expiresIn: '7d' });
+  }
+
+  async sendResetPasswordLink(email: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const token = this.jwtService.sign(
+      { userId: user.id },
+      { expiresIn: '1h' },
+    );
+    const resetLink = `https://your-frontend-url.com/reset-password?token=${token}`;
   }
 }

@@ -36,7 +36,7 @@ export class UserController {
 
   @Patch('edit')
   async update(@Body() UpdateUserDto: Update_UserDto) {
-    return this.userService.update(UpdateUserDto);
+    return this.userService.update_user(UpdateUserDto);
   }
 
   @Delete('delete')

@@ -38,7 +38,7 @@ export class UserService {
   }
   async create(data) {
     //const data = this.decode(createUserDto.token);
-    // if (data['roleId'] == 0) {
+    // if (data['roleId'] === 0) {
     //   throw new BadRequestException('You are not admin!');
     // }
     const user = await this.prisma.user.create({
@@ -78,7 +78,7 @@ export class UserService {
         lastLoggedIn: true,
       },
     });
-    if (user == null) {
+    if (user === null) {
       throw new NotFoundException(`There is no user with id: ${id}`);
     }
     return {
@@ -99,14 +99,17 @@ export class UserService {
       },
     });
 
-    return user;
+    return {
+      statusCode: 200,
+      user: user,
+    };
   }
 
-  async update(UpdateUserDto: Update_UserDto) {
+  async update_user(UpdateUserDto: Update_UserDto) {
     await this.checkData(Update_UserDto, UpdateUserDto);
     const token_data = this.decode(UpdateUserDto.token);
     const params = UpdateUserDto.params;
-    if (token_data['roleId'] != 1 && token_data['id'] != UpdateUserDto.id) {
+    if (token_data['roleId'] !== 1 && token_data['id'] !== UpdateUserDto.id) {
       throw new BadRequestException(
         'Only admin can update parametrs of other users!',
       );
@@ -115,7 +118,7 @@ export class UserService {
     const user = await this.prisma.user.findUnique({
       where: { id: UpdateUserDto.id },
     });
-    if (user == null) {
+    if (user === null) {
       throw new NotFoundException(
         `There is no user with id: ${UpdateUserDto.id}`,
       );
@@ -148,14 +151,14 @@ export class UserService {
   async remove(DeleteUserDto: Delete_UserDto) {
     await this.checkData(Delete_UserDto, DeleteUserDto);
     const token_data = this.decode(DeleteUserDto.token);
-    if (token_data['roleId'] != 1 && token_data['id'] != DeleteUserDto.id) {
+    if (token_data['roleId'] !== 1 && token_data['id'] !== DeleteUserDto.id) {
       throw new BadRequestException('Only admin can delete other users!');
     }
 
     const user = await this.prisma.user.findUnique({
       where: { id: DeleteUserDto.id },
     });
-    if (user == null) {
+    if (user === null) {
       throw new NotFoundException(
         `There is no user with id: ${DeleteUserDto.id}`,
       );
