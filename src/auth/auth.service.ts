@@ -114,7 +114,8 @@ export class AuthService {
     return this.jwtService.sign(params, { expiresIn: '7d' });
   }
 
-  async sendResetPasswordLink(email: string): Promise<void> {
+  async sendResetPasswordLink(data: string): Promise<void> {
+    const email = data['email'];
     const responce = await this.user_service.findEmail(email);
     const user = responce.user;
     if (user === null) {
@@ -127,24 +128,46 @@ export class AuthService {
     );
     const resetLink = `https://your-frontend-url.com/reset-password?token=${token}`;
 
+    try{
+
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
+        user: 'lztn555@gmail.com',
+        pass: 'dgokdkjbvprdhuzt',
       },
     });
 
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: 'lztn555@gmail.com',
       to: email,
       subject: 'Password Reset Request',
       text: `To reset your password, please click the following link: ${resetLink}`,
       html: `<p>To reset your password, please click the following link:</p><a href="${resetLink}">Reset Password</a>`,
     };
 
-    
     await transporter.sendMail(mailOptions);
+
+  }catch(err){
+    // console.log(process.env.EMAIL);
+    // console.log(process.env.PASSWORD);
+    console.log(err);
+  }
+
+
+
+    // const info = await transporter.sendMail({
+    //   from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
+    //   to: 'bar@example.com, baz@example.com', // list of receivers
+    //   subject: 'Hello ✔', // Subject line
+    //   text: 'Hello world?', // plain text body
+    //   html: '<b>Hello world?</b>', // html body
+    // });
+
+    
+    
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
