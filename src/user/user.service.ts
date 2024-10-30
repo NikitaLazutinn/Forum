@@ -12,6 +12,7 @@ import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
 import * as jwt from 'jsonwebtoken';
+import { RegisterDto } from 'src/auth/dto/RegisterDto';
 
 @Injectable()
 export class UserService {
@@ -35,13 +36,15 @@ export class UserService {
       throw new BadRequestException('Invalid token');
     }
   }
-  async create(createUserDto: CreateUserDto) {
-    await this.checkData(CreateUserDto, createUserDto);
-    const data = this.decode(createUserDto.token);
-    if (data['roleId'] == 0) {
-      throw new BadRequestException('You are not admin!');
-    }
-    return 'This action adds a new user';
+  async create(data) {
+    //const data = this.decode(createUserDto.token);
+    // if (data['roleId'] == 0) {
+    //   throw new BadRequestException('You are not admin!');
+    // }
+    const user = await this.prisma.user.create({
+      data,
+    });
+    return user;
   }
 
   async findAll() {
@@ -95,13 +98,8 @@ export class UserService {
         lastLoggedIn: true,
       },
     });
-    if (user == null) {
-      throw new NotFoundException(`There is no user with email: ${email}`);
-    }
-    return {
-      statusCode: 200,
-      user: user,
-    };
+
+    return user;
   }
 
   async update(UpdateUserDto: Update_UserDto) {

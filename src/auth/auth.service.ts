@@ -17,6 +17,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async hashing(password){
+    return await bcrypt.hash(password, 10);
+  }
+
   async createUser(data: RegisterDto): Promise<RegisterResponseDto> {
     const registerDto = plainToClass(RegisterDto, data);
 
@@ -35,16 +39,14 @@ export class AuthService {
         throw new BadRequestException('Passwords do not match');
       }
 
-      const hashedPassword = await bcrypt.hash(data.password, 10);
+      const hashedPassword = await this.hashing(data.password);
       data.password = hashedPassword;
       const lastKey = Object.keys(data).pop();
       if (lastKey) {
         delete data[lastKey];
       }
 
-      const user = await this.prisma.user.create({
-        data,
-      });
+      const user = await this.user_service.create(data);
 
       return {
         statusCode: 201,
