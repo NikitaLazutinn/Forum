@@ -13,6 +13,7 @@ import * as bcrypt from 'bcrypt';
 import { logInDto, logInResponceDto } from './dto/logInDto';
 import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
+import { linkResetResp, ResetDto } from './dto/resetDto';
 
 @Injectable()
 export class AuthService {
@@ -114,7 +115,7 @@ export class AuthService {
     return this.jwtService.sign(params, { expiresIn: '7d' });
   }
 
-async sendResetPasswordLink(data: string): Promise<void> {
+  async resetPasswordLink(data: string): Promise<linkResetResp> {
     const email = data['email'];
     const responce = await this.user_service.findEmail(email);
     const user = responce.user;
@@ -123,56 +124,53 @@ async sendResetPasswordLink(data: string): Promise<void> {
     }
 
     const token = this.jwtService.sign(
-      { userId: user.id },
+      { id: user.id },
       { expiresIn: '1h' },
     );
-    const resetLink = `https://your-frontend-url.com/reset-password?token=${token}`;
-
+    const resetLink = `http://localhost:3000/auth/reset-password?token=${token}`;
 
     const transporter = nodemailer.createTransport({
-      service:'gmail',
-      auth:{
-          user: process.env.EMAIL,
-          pass: process.env.PASSWORD     
-      }
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
     });
 
     const mailOptions = {
       from: process.env.EMAIL,
-      to:email,
-      subject:"Resetting password",
+      to: email,
+      subject: 'Resetting password',
       text: `To reset your password, please click the following link: ${resetLink}`,
       html: `<p>To reset your password, please click the following link:</p><a href="${resetLink}">Reset Password</a>`,
     };
-
-    await transporter.sendMail(mailOptions,function(error){
-
-      if(error){
+    
+    await transporter.sendMail(mailOptions, function (error) {
+      if (error) {
         throw new BadRequestException(error);
-      }else{
-        return {
-          statusCode: 201,
-          message: 'Link for resettimg created successfully!'
-        };
-      }
-
- });
-
-
+      }   
+    });
+    return {
+      statusCode: 201,
+      message: 'Link for resettimg created successfully!',
+    };
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<void> {
+  async resetPassword(token: string, body: ResetDto): Promise<linkResetResp> {
     try {
-      const payload = this.jwtService.verify(token);
-      const userId = payload.userId;
+      const tokenData = this.jwtService.verify(token);
+      const userId = tokenData.id;
 
-      const hashedPassword:string = await this.hashPassword(newPassword);
-      const dtoData = {
+        if (body.password !== body.confirmPassword) {
+          throw new BadRequestException('Passwords do not match');
+        }
+      const hashedPassword: string = await this.hashPassword(body['password']);
+      const updateData = {
         token: token,
         id: userId,
         params: { name: '', email: '', password: hashedPassword },
       };
-      await this.user_service.update_user(dtoData);
+      return await this.user_service.update_user(updateData);
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired token');
     }
