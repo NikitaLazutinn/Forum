@@ -35,6 +35,7 @@ export class UserController {
   async findOne(@Param('id') id: string) {
     return this.userService.findById(+id);
   }
+
   @UseGuards(AuthGuard)
   @Patch('edit')
   async update(@Body() UpdateUserDto: Update_UserDto, @Req() request) {
@@ -47,5 +48,12 @@ export class UserController {
   async remove(@Body() DeleteUserDto: Delete_UserDto, @Req() request) {
     const tokenData = request.user;
     return this.userService.remove(DeleteUserDto, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('give_admin')
+  async give_admin(@Body() id: number, @Req() request) {
+    const tokenData = request.user;
+    return this.userService.admin(id, tokenData);
   }
 }
