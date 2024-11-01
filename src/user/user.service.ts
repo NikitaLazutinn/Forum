@@ -4,15 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
-  CreateUserDto,
   Delete_UserDto,
   Update_UserDto,
 } from './dto/create-user.dto';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
-import * as jwt from 'jsonwebtoken';
-import { RegisterDto } from 'src/auth/dto/RegisterDto';
 
 @Injectable()
 export class UserService {
@@ -26,16 +23,7 @@ export class UserService {
       throw new BadRequestException('Invalid data format');
     }
   }
-  decode(data) {
-    try {
-      const secret = process.env.JWT_SECRET;
-      const verified = jwt.verify(data, secret);
-      return verified;
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException('Invalid token');
-    }
-  }
+
   async create(data) {
     //const data = this.decode(createUserDto.token);
     // if (data['roleId'] === 0) {
@@ -105,9 +93,8 @@ export class UserService {
     };
   }
 
-  async update_user(UpdateUserDto: Update_UserDto) {
+  async update_user(UpdateUserDto: Update_UserDto, token_data) {
     await this.checkData(Update_UserDto, UpdateUserDto);
-    const token_data = this.decode(UpdateUserDto.token);
     const params = UpdateUserDto.params;
     if (token_data['roleId'] !== 1 && token_data['id'] !== UpdateUserDto.id) {
       throw new BadRequestException(
@@ -157,9 +144,8 @@ export class UserService {
     };
   }
 
-  async remove(DeleteUserDto: Delete_UserDto) {
+  async remove(DeleteUserDto: Delete_UserDto, token_data) {
     await this.checkData(Delete_UserDto, DeleteUserDto);
-    const token_data = this.decode(DeleteUserDto.token);
     if (token_data['roleId'] !== 1 && token_data['id'] !== DeleteUserDto.id) {
       throw new BadRequestException('Only admin can delete other users!');
     }

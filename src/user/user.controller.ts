@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -14,6 +15,7 @@ import {
   Delete_UserDto,
   Update_UserDto,
 } from './dto/create-user.dto';
+import { AuthGuard } from 'src/guards';
 
 @Controller('user')
 export class UserController {
@@ -33,14 +35,17 @@ export class UserController {
   async findOne(@Param('id') id: string) {
     return this.userService.findById(+id);
   }
-
+  @UseGuards(AuthGuard)
   @Patch('edit')
-  async update(@Body() UpdateUserDto: Update_UserDto) {
-    return this.userService.update_user(UpdateUserDto);
+  async update(@Body() UpdateUserDto: Update_UserDto, @Req() request) {
+    const tokenData = request.user;
+    return this.userService.update_user(UpdateUserDto, tokenData);
   }
 
+  @UseGuards(AuthGuard)
   @Delete('delete')
-  async remove(@Body() DeleteUserDto: Delete_UserDto) {
-    return this.userService.remove(DeleteUserDto);
+  async remove(@Body() DeleteUserDto: Delete_UserDto, @Req() request) {
+    const tokenData = request.user;
+    return this.userService.remove(DeleteUserDto, tokenData);
   }
 }

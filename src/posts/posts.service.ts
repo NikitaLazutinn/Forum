@@ -25,15 +25,13 @@ export class PostsService {
       const verified = jwt.verify(data, secret);
       return verified;
     } catch (err) {
-      console.log(err);
       throw new BadRequestException('Invalid token');
     }
   }
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, token_data) {
     this.checkData(CreatePostDto, createPostDto);
 
-    const token_data = this.decode(createPostDto.token);
     const data = {
       title: createPostDto.title,
       content: createPostDto.content,
@@ -51,7 +49,7 @@ export class PostsService {
         properties: post,
       };
     } catch (err) {
-      console.log(data);
+      throw new BadRequestException();
     }
   }
 
@@ -80,9 +78,8 @@ export class PostsService {
     };
   }
 
-  async update(updatePostDto: UpdatePostDto) {
+  async update(updatePostDto: UpdatePostDto, token_data) {
     await this.checkData(UpdatePostDto, updatePostDto);
-    const token_data = this.decode(updatePostDto.token);
     const params = updatePostDto.params;
 
     const post = await this.prisma.post.findUnique({
@@ -123,9 +120,8 @@ export class PostsService {
     };
   }
 
-  async remove(delete_PostDto: DeletePostDto) {
+  async remove(delete_PostDto: DeletePostDto, token_data) {
     await this.checkData(DeletePostDto, delete_PostDto);
-    const token_data = this.decode(delete_PostDto.token);
 
     const post = await this.prisma.post.findUnique({
       where: { id: delete_PostDto.id },

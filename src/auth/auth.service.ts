@@ -123,11 +123,9 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const token = this.jwtService.sign(
-      { id: user.id },
-      { expiresIn: '1h' },
-    );
-    const resetLink = `http://localhost:3000/auth/reset-password?token=${token}`;
+    const token = this.jwtService.sign({ id: user.id }, { expiresIn: '1h' });
+    const link = process.env.LINK;
+    const resetLink = `${link}/auth/reset-password?token=${token}`;
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -144,11 +142,11 @@ export class AuthService {
       text: `To reset your password, please click the following link: ${resetLink}`,
       html: `<p>To reset your password, please click the following link:</p><a href="${resetLink}">Reset Password</a>`,
     };
-    
+
     await transporter.sendMail(mailOptions, function (error) {
       if (error) {
         throw new BadRequestException(error);
-      }   
+      }
     });
     return {
       statusCode: 201,
@@ -161,16 +159,15 @@ export class AuthService {
       const tokenData = this.jwtService.verify(token);
       const userId = tokenData.id;
 
-        if (body.password !== body.confirmPassword) {
-          throw new BadRequestException('Passwords do not match');
-        }
+      if (body.password !== body.confirmPassword) {
+        throw new BadRequestException('Passwords do not match');
+      }
       const hashedPassword: string = await this.hashPassword(body['password']);
       const updateData = {
-        token: token,
         id: userId,
         params: { name: '', email: '', password: hashedPassword },
       };
-      return await this.user_service.update_user(updateData);
+      return await this.user_service.update_user(updateData, tokenData);
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired token');
     }
