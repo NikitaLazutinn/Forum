@@ -25,14 +25,18 @@ export class PostsController {
     return this.postsService.create(createPostDto, tokenData);
   }
 
+  @UseGuards(AuthGuard)
   @Get('all')
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Req() request) {
+    const tokenData = request.user;
+    return this.postsService.findAll(tokenData);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() request) {
+    const tokenData = request.user;
+    return this.postsService.findOne(+id, tokenData);
   }
 
   @UseGuards(AuthGuard)

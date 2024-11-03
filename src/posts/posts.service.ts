@@ -19,16 +19,6 @@ export class PostsService {
     }
   }
 
-  decode(data) {
-    try {
-      const secret = process.env.JWT_SECRET;
-      const verified = jwt.verify(data, secret);
-      return verified;
-    } catch (err) {
-      throw new BadRequestException('Invalid token');
-    }
-  }
-
   async create(createPostDto: CreatePostDto, token_data) {
     this.checkData(CreatePostDto, createPostDto);
 
@@ -53,9 +43,16 @@ export class PostsService {
     }
   }
 
-  async findAll() {
+  async findAll(token_data) {
     try {
-      const all = await this.prisma.post.findMany();
+      let all;
+      if(token_data['roleId'] === 0){
+        all = await this.prisma.post.findMany({
+          where: { published: true },
+        });
+      }else{
+        all = await this.prisma.post.findMany();
+      }
       return {
         statusCode: 200,
         posts: all,
@@ -65,10 +62,17 @@ export class PostsService {
     }
   }
 
-  async findOne(id: number) {
-    const post = await this.prisma.post.findUnique({
-      where: { id: id },
-    });
+  async findOne(id: number, token_data) {
+    let post;
+    if(token_data['roleId'] === 0){
+      post = await this.prisma.post.findUnique({
+      where: { id: id, published: true },
+      });
+    }else{
+      post = await this.prisma.post.findUnique({
+      where: { id: id},
+    });  
+  }
     if (post === null) {
       throw new NotFoundException(`There is no post with id: ${id}`);
     }
@@ -113,6 +117,15 @@ export class PostsService {
         },
       });
     }
+
+    await this.prisma.post.update({
+      where: { id: updatePostDto.id },
+      data: {
+        published: params.published,
+      },
+    });
+
+    
 
     return {
       statusCode: 201,
