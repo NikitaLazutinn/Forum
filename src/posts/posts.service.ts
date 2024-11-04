@@ -3,10 +3,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private categoriesService: CategoriesService){}
 
   async checkData(dto, data) {
     const registerDto = plainToClass(dto, data);
@@ -20,12 +21,26 @@ export class PostsService {
   async create(createPostDto: CreatePostDto, token_data) {
     this.checkData(CreatePostDto, createPostDto);
 
+    await this.categoriesService.ifAvaiable(createPostDto.categoriesId);
+
+    const categories = [];
+    createPostDto.categoriesId.map(id => categories.push({category: {
+      connect: {
+        id: id
+      }
+    }}));
+
     const data = {
       title: createPostDto.title,
       content: createPostDto.content,
       published: true,
       authorId: token_data['id'],
+      categories: {
+        create:
+       categories,
+      },
     };
+    
     try {
       const post = await this.prisma.post.create({
         data,
@@ -80,6 +95,7 @@ export class PostsService {
 
   async update(updatePostDto: UpdatePostDto, token_data) {
     await this.checkData(UpdatePostDto, updatePostDto);
+    await this.categoriesService.ifAvaiable(updatePostDto.params.categoriesId);
     const params = updatePostDto.params;
 
     const post = await this.prisma.post.findUnique({
@@ -120,6 +136,19 @@ export class PostsService {
         published: params.published,
       },
     });
+
+  await this.prisma.categoriesOnPosts.deleteMany({
+    where: { updatePostDto.id },
+  });
+
+  const updatedCategories = params.categoriesId.map((categoryId) => ({
+    updatePostDto.id,
+    categoryId,
+  }));
+
+  await this.prisma.categoriesOnPosts.createMany({
+    data: updatedCategories,
+  });
 
     
 

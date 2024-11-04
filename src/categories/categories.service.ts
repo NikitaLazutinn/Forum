@@ -120,4 +120,14 @@ export class CategoriesService {
     };
   }
 
+  async ifAvaiable(ids:number[]){
+   for(let i = 0; i < ids.length; i++){
+    const m = await this.prisma.category.findUnique({where: { id: ids[i]}});
+    if(m === null){
+      throw new NotFoundException(`There is no category with id: ${ids[i]}`);
+    }
+   }
+    
+  }
+
 }
