@@ -165,4 +165,32 @@ export class UserService {
       message: 'User deleted successfully',
     };
   }
+
+  async admin(data: number, token_data) {
+    const id = data['id'];
+    if (token_data['roleId'] !== 1) {
+      throw new NotFoundException('Only admin can use this endpoint!');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (user === null) {
+      throw new NotFoundException(
+        `There is no user with id: ${id}`,
+      );
+    }
+    await this.prisma.user.update({
+      where: { id: id },
+      data: {
+        roleId: 1,
+      },
+    });
+
+    return {
+      statusCode: 201,
+      message: 'Admin role gived successfully',
+    };
+  }
 }

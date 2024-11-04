@@ -15,6 +15,7 @@ import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
 import { linkResetResp, ResetDto } from './dto/resetDto';
 
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -96,6 +97,13 @@ export class AuthService {
 
       const accessToken = this.generateAccessToken(tokenParametrs);
       const refreshToken = this.generateRefreshToken(tokenParametrs);
+
+      await this.prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          lastLoggedIn: new Date()
+        },
+      });
 
       return {
         name: existingUser.name,

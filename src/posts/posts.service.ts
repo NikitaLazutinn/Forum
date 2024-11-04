@@ -1,10 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
-import * as jwt from 'jsonwebtoken';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { Delete_UserDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class PostsService {
@@ -16,16 +14,6 @@ export class PostsService {
     const errors = await validate(registerDto);
     if (errors.length > 0) {
       throw new BadRequestException('Invalid data format');
-    }
-  }
-
-  decode(data) {
-    try {
-      const secret = process.env.JWT_SECRET;
-      const verified = jwt.verify(data, secret);
-      return verified;
-    } catch (err) {
-      throw new BadRequestException('Invalid token');
     }
   }
 
@@ -53,9 +41,14 @@ export class PostsService {
     }
   }
 
-  async findAll() {
+  async findAll(token_data) {
     try {
-      const all = await this.prisma.post.findMany();
+      let whereCondition: any = {};
+      if(token_data['roleId'] === 0){
+        whereCondition.published = true;
+      }
+      const all = await this.prisma.post.findMany({where: whereCondition});
+      
       return {
         statusCode: 200,
         posts: all,
@@ -65,10 +58,17 @@ export class PostsService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, token_data) {
+
+    let whereCondition: any = { id: id };
+    if(token_data['roleId'] === 0){
+      whereCondition.published = true;
+    }
+
     const post = await this.prisma.post.findUnique({
-      where: { id: id },
+      where: whereCondition,
     });
+
     if (post === null) {
       throw new NotFoundException(`There is no post with id: ${id}`);
     }
@@ -113,6 +113,15 @@ export class PostsService {
         },
       });
     }
+
+    await this.prisma.post.update({
+      where: { id: updatePostDto.id },
+      data: {
+        published: params.published,
+      },
+    });
+
+    
 
     return {
       statusCode: 201,
