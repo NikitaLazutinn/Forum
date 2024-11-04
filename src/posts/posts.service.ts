@@ -1,10 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
-import * as jwt from 'jsonwebtoken';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { Delete_UserDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class PostsService {
