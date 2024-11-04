@@ -43,14 +43,12 @@ export class PostsService {
 
   async findAll(token_data) {
     try {
-      let all;
+      let whereCondition: any = {};
       if(token_data['roleId'] === 0){
-        all = await this.prisma.post.findMany({
-          where: { published: true },
-        });
-      }else{
-        all = await this.prisma.post.findMany();
+        whereCondition.published = true;
       }
+      const all = await this.prisma.post.findMany({where: whereCondition});
+      
       return {
         statusCode: 200,
         posts: all,
@@ -61,16 +59,16 @@ export class PostsService {
   }
 
   async findOne(id: number, token_data) {
-    let post;
+
+    let whereCondition: any = { id: id };
     if(token_data['roleId'] === 0){
-      post = await this.prisma.post.findUnique({
-      where: { id: id, published: true },
-      });
-    }else{
-      post = await this.prisma.post.findUnique({
-      where: { id: id},
-    });  
-  }
+      whereCondition.published = true;
+    }
+
+    const post = await this.prisma.post.findUnique({
+      where: whereCondition,
+    });
+
     if (post === null) {
       throw new NotFoundException(`There is no post with id: ${id}`);
     }

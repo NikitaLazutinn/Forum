@@ -169,7 +169,7 @@ export class UserService {
   async admin(data: number, token_data) {
     const id = data['id'];
     if (token_data['roleId'] !== 1) {
-      throw new BadRequestException('Only admin can use this endpoint!');
+      throw new NotFoundException('Only admin can use this endpoint!');
     }
 
     const user = await this.prisma.user.findUnique({

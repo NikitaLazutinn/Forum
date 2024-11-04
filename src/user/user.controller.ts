@@ -51,8 +51,8 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('give_admin')
-  async give_admin(@Body() id: number, @Req() request) {
+  @Patch('adminStatus')
+  async adminStatus(@Body() id: number, @Req() request) {
     const tokenData = request.user;
     return this.userService.admin(id, tokenData);
   }
