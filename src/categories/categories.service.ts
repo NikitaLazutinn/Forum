@@ -25,7 +25,7 @@ export class CategoriesService {
     await this.checkData(CreateDto, data);
 
     if (token_data['roleId'] !== 1) {
-      throw new BadRequestException('Only admin can create categories!');
+      throw new NotFoundException();
     }
     try {
       const category = await this.prisma.category.create({
@@ -54,12 +54,12 @@ export class CategoriesService {
     }
   }
 
-  async findByName(name: string) {
+  async findById(id: number) {
     const category = await this.prisma.category.findUnique({
-      where: { name: name },
+      where: { id: id },
     });
     if (category === null) {
-      throw new NotFoundException(`There is no category with name: ${name}`);
+      throw new NotFoundException(`There is no category with id: ${id}`);
     }
     return {
       statusCode: 200,
@@ -70,25 +70,29 @@ export class CategoriesService {
   async update_category(updateDto: UpdateDto, token_data) {
     await this.checkData(UpdateDto, updateDto);
     if (token_data['roleId'] !== 1) {
-      throw new BadRequestException(
-        'Only admin can update parametrs of categories!',
-      );
+      throw new NotFoundException();
     }
 
     const category = await this.prisma.category.findUnique({
-      where: { name: updateDto.name },
+      where: { id: updateDto.id },
     });
     if (category === null) {
       throw new NotFoundException(
-        `There is no category with name: ${updateDto.name}`,
+        `There is no category with id: ${updateDto.id}`,
       );
     }
 
+    const data: any = {};
+    if (updateDto.name.length > 0) {
+      data.name = updateDto.name;
+    }
+    if (updateDto.description.length > 0) {
+      data.description = updateDto.description;
+    }
+
     await this.prisma.category.update({
-      where: { name: updateDto.name },
-      data: {
-        description: updateDto.description,
-      },
+      where: { id: updateDto.id },
+      data: data,
     });
 
     return {
@@ -97,20 +101,20 @@ export class CategoriesService {
     };
   }
 
-  async remove(data: string, token_data) {
-    const name = data['name'];
+  async remove(data: number, token_data) {
+    const id = data['id'];
 
     if (token_data['roleId'] !== 1) {
-      throw new BadRequestException('Only admin can delete categories!');
+      throw new NotFoundException();
     }
 
     const category = await this.prisma.category.findUnique({
-      where: { name: name },
+      where: { id: id },
     });
     if (category === null) {
-      throw new NotFoundException(`There is no category with name: ${name}`);
+      throw new NotFoundException(`There is no category with id: ${id}`);
     }
-    await this.prisma.category.delete({ where: { name: name } });
+    await this.prisma.category.delete({ where: { id: id } });
 
     return {
       statusCode: 204,
@@ -118,15 +122,20 @@ export class CategoriesService {
     };
   }
 
-  async ifAvaiable(ids: number[]) {
-    for (let i = 0; i < ids.length; i++) {
-      const m = await this.prisma.category.findUnique({
-        where: { id: ids[i] },
-      });
-      if (m === null) {
-        throw new NotFoundException(`There is no category with id: ${ids[i]}`);
+  async ifAvailable(ids: number[]) {
+    const promises = ids.map((id) =>
+      this.prisma.category.findUnique({ where: { id } }),
+    );
+
+    const results = await Promise.all(promises);
+
+    results.forEach((category, index) => {
+      if (category === null) {
+        throw new NotFoundException(
+          `There is no category with id: ${ids[index]}`,
+        );
       }
-    }
+    });
   }
 
   async UpdateInPost(postId: number, categoriesId: number[]) {
@@ -144,7 +153,6 @@ export class CategoriesService {
           data: updatedCategories,
         }),
       ]);
-
     } catch (err) {
       throw new NotFoundException();
     }
@@ -155,7 +163,6 @@ export class CategoriesService {
       await this.prisma.categoriesOnPosts.deleteMany({
         where: { postId: postId },
       });
-
     } catch (err) {
       throw new NotFoundException();
     }

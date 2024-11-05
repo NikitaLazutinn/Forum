@@ -29,9 +29,9 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
 
-  @Get(':name')
-  async findOne(@Param('name') name: string) {
-    return this.categoriesService.findByName(name);
+  @Get(':id')
+  async findOne(@Param('id') id: number) {
+    return this.categoriesService.findById(+id);
   }
 
   @UseGuards(AuthGuard)
@@ -43,9 +43,8 @@ export class CategoriesController {
 
   @UseGuards(AuthGuard)
   @Delete('delete')
-  async remove(@Body() data: string, @Req() request) {
+  async remove(@Body() id: number, @Req() request) {
     const tokenData = request.user;
-    return this.categoriesService.remove(data, tokenData);
+    return this.categoriesService.remove(id, tokenData);
   }
-
 }
