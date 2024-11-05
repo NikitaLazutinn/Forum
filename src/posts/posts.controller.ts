@@ -8,10 +8,12 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
 import { AuthGuard } from 'src/guards';
+import { PostFilterDto } from './dto/filter.dto';
 
 
 @Controller('posts')
@@ -23,6 +25,13 @@ export class PostsController {
   create(@Body() createPostDto: CreatePostDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.create(createPostDto, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('filter-sort')
+  async getFilteredPosts(@Body() filterDto: PostFilterDto, @Req() request) {
+    const tokenData = request.user;
+    return this.postsService.filterAndSortPosts(filterDto, tokenData);
   }
 
   @UseGuards(AuthGuard)

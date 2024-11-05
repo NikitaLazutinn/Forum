@@ -12,7 +12,43 @@ import {
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CategoriesService } from 'src/categories/categories.service';
+import { PostFilterDto } from './dto/filter.dto';
 
+const select = {
+    title: true,
+    content: true,
+    createdAt: true,
+    updatedAt: true,
+    author: {
+      select: {
+        id: true,
+        name: true, 
+      },
+    },
+    comments: {
+      select: {
+        id: true,
+        content: true,
+        userId: true, 
+      },
+    },
+    categories: {
+      select: {
+        category: {
+          select: {
+            id: true,
+            name: true, 
+          },
+        },
+      },
+    },
+    likes: {
+      select: {
+        id: true,
+        userId: true, 
+      },
+    },
+  };
 @Injectable()
 export class PostsService {
   constructor(
@@ -76,7 +112,10 @@ export class PostsService {
       if (token_data['roleId'] === 0) {
         whereCondition.published = true;
       }
-      const all = await this.prisma.post.findMany({ where: whereCondition });
+      const all = await this.prisma.post.findMany({
+        where: whereCondition,
+        select: select,
+      });
 
       return {
         statusCode: 200,
@@ -95,6 +134,7 @@ export class PostsService {
 
     const post = await this.prisma.post.findUnique({
       where: whereCondition,
+      select: select,
     });
 
     if (post === null) {
@@ -182,4 +222,66 @@ export class PostsService {
       message: 'Post deleted successfully',
     };
   }
+
+  async filterAndSortPosts(filterDto: PostFilterDto, token_data) {
+    let {
+      title,
+      published,
+      content,
+      createdAt,
+      updatedAt,
+      categoryName,
+      sortField,
+      sortOrder,
+      skip = 0, 
+      take = 10
+    } = filterDto;
+
+    const conditions:any = [
+      title ? { title: { contains: title } } : undefined,
+      content ? { content: { contains: content } } : undefined,
+      createdAt ? { createdAt: { equals: createdAt } } : undefined,
+      updatedAt ? { updatedAt: { equals: updatedAt } } : undefined,
+      categoryName
+        ? {
+            categories: {
+              some: {
+                category: {
+                  name: categoryName,
+                },
+              },
+            },
+          }
+        : undefined,
+    ];
+
+    
+    if (token_data['roleId'] === 1) {
+      if (published) {
+        conditions.push(published ? { published: { contains: published } } : undefined);
+      }
+    } else {
+      published = true;
+      conditions.push(
+        published ? { published: { contains: published } } : undefined,
+      );
+    }
+
+    const where = {
+      AND: conditions.filter(Boolean),
+    };
+
+    const orderBy: any = sortField
+      ? { [sortField]: sortOrder === 'desc' ? 'desc' : 'asc' }
+      : { createdAt: 'asc' };
+
+    return this.prisma.post.findMany({
+      where,
+      skip, 
+      take,
+      orderBy,
+      select: select,
+    });
+  }
 }
+
