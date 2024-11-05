@@ -137,20 +137,7 @@ export class PostsService {
       },
     });
 
-  await this.prisma.categoriesOnPosts.deleteMany({
-    where: { updatePostDto.id },
-  });
-
-  const updatedCategories = params.categoriesId.map((categoryId) => ({
-    updatePostDto.id,
-    categoryId,
-  }));
-
-  await this.prisma.categoriesOnPosts.createMany({
-    data: updatedCategories,
-  });
-
-    
+    await this.categoriesService.UpdateInPost(updatePostDto.id, updatePostDto.params.categoriesId)
 
     return {
       statusCode: 201,
@@ -175,6 +162,7 @@ export class PostsService {
       );
     }
 
+    await this.categoriesService.DeleteInPost(delete_PostDto.id);
     await this.prisma.post.delete({ where: { id: delete_PostDto.id } });
 
     return {

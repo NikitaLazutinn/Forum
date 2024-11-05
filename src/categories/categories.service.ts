@@ -84,13 +84,13 @@ export class CategoriesService {
       );
     }
 
-      await this.prisma.category.update({
-        where: { name: updateDto.name },
-        data: {
-          description: updateDto.description,
-        },
-      });
-    
+    await this.prisma.category.update({
+      where: { name: updateDto.name },
+      data: {
+        description: updateDto.description,
+      },
+    });
+
     return {
       statusCode: 201,
       message: 'Category updated successfully',
@@ -108,11 +108,9 @@ export class CategoriesService {
       where: { name: name },
     });
     if (category === null) {
-      throw new NotFoundException(
-        `There is no category with name: ${name}`,
-      );
+      throw new NotFoundException(`There is no category with name: ${name}`);
     }
-    await this.prisma.category.delete({ where: { name: name} });
+    await this.prisma.category.delete({ where: { name: name } });
 
     return {
       statusCode: 204,
@@ -120,14 +118,46 @@ export class CategoriesService {
     };
   }
 
-  async ifAvaiable(ids:number[]){
-   for(let i = 0; i < ids.length; i++){
-    const m = await this.prisma.category.findUnique({where: { id: ids[i]}});
-    if(m === null){
-      throw new NotFoundException(`There is no category with id: ${ids[i]}`);
+  async ifAvaiable(ids: number[]) {
+    for (let i = 0; i < ids.length; i++) {
+      const m = await this.prisma.category.findUnique({
+        where: { id: ids[i] },
+      });
+      if (m === null) {
+        throw new NotFoundException(`There is no category with id: ${ids[i]}`);
+      }
     }
-   }
-    
   }
 
+  async UpdateInPost(postId: number, categoriesId: number[]) {
+    try {
+      const updatedCategories = categoriesId.map((categoryId) => ({
+        postId,
+        categoryId,
+      }));
+
+      await this.prisma.$transaction([
+        this.prisma.categoriesOnPosts.deleteMany({
+          where: { postId: postId },
+        }),
+        this.prisma.categoriesOnPosts.createMany({
+          data: updatedCategories,
+        }),
+      ]);
+
+    } catch (err) {
+      throw new NotFoundException();
+    }
+  }
+
+  async DeleteInPost(postId: number) {
+    try {
+      await this.prisma.categoriesOnPosts.deleteMany({
+        where: { postId: postId },
+      });
+
+    } catch (err) {
+      throw new NotFoundException();
+    }
+  }
 }
