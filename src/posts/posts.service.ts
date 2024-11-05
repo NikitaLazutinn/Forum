@@ -1,12 +1,24 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
+import {
+  CreatePostDto,
+  DeletePostDto,
+  UpdatePostDto,
+} from './dto/create-post.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private categoriesService: CategoriesService,
+  ) {}
 
   async checkData(dto, data) {
     const registerDto = plainToClass(dto, data);
@@ -20,12 +32,29 @@ export class PostsService {
   async create(createPostDto: CreatePostDto, token_data) {
     this.checkData(CreatePostDto, createPostDto);
 
+    await this.categoriesService.ifAvailable(createPostDto.categoriesId);
+
+    const categories = [];
+    createPostDto.categoriesId.map((id) =>
+      categories.push({
+        category: {
+          connect: {
+            id: id,
+          },
+        },
+      }),
+    );
+
     const data = {
       title: createPostDto.title,
       content: createPostDto.content,
       published: true,
       authorId: token_data['id'],
+      categories: {
+        create: categories,
+      },
     };
+
     try {
       const post = await this.prisma.post.create({
         data,
@@ -44,11 +73,11 @@ export class PostsService {
   async findAll(token_data) {
     try {
       let whereCondition: any = {};
-      if(token_data['roleId'] === 0){
+      if (token_data['roleId'] === 0) {
         whereCondition.published = true;
       }
-      const all = await this.prisma.post.findMany({where: whereCondition});
-      
+      const all = await this.prisma.post.findMany({ where: whereCondition });
+
       return {
         statusCode: 200,
         posts: all,
@@ -59,9 +88,8 @@ export class PostsService {
   }
 
   async findOne(id: number, token_data) {
-
     let whereCondition: any = { id: id };
-    if(token_data['roleId'] === 0){
+    if (token_data['roleId'] === 0) {
       whereCondition.published = true;
     }
 
@@ -80,6 +108,7 @@ export class PostsService {
 
   async update(updatePostDto: UpdatePostDto, token_data) {
     await this.checkData(UpdatePostDto, updatePostDto);
+    await this.categoriesService.ifAvailable(updatePostDto.params.categoriesId);
     const params = updatePostDto.params;
 
     const post = await this.prisma.post.findUnique({
@@ -91,9 +120,7 @@ export class PostsService {
       );
     }
     if (token_data['roleId'] !== 1 && token_data['id'] !== post.authorId) {
-      throw new BadRequestException(
-        'Only admin can update parametrs of other posts!',
-      );
+      throw new NotFoundException();
     }
 
     if (params.title.length > 0) {
@@ -121,7 +148,10 @@ export class PostsService {
       },
     });
 
-    
+    await this.categoriesService.UpdateInPost(
+      updatePostDto.id,
+      updatePostDto.params.categoriesId,
+    );
 
     return {
       statusCode: 201,
@@ -141,11 +171,10 @@ export class PostsService {
       );
     }
     if (token_data['roleId'] !== 1 && token_data['id'] !== post.authorId) {
-      throw new BadRequestException(
-        'Only admin can delete parametrs of other posts!',
-      );
+      throw new NotFoundException();
     }
 
+    await this.categoriesService.DeleteInPost(delete_PostDto.id);
     await this.prisma.post.delete({ where: { id: delete_PostDto.id } });
 
     return {

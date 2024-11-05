@@ -97,9 +97,7 @@ export class UserService {
     await this.checkData(Update_UserDto, UpdateUserDto);
     const params = UpdateUserDto.params;
     if (token_data['roleId'] !== 1 && token_data['id'] !== UpdateUserDto.id) {
-      throw new BadRequestException(
-        'Only admin can update parametrs of other users!',
-      );
+      throw new NotFoundException();
     }
 
     const user = await this.prisma.user.findUnique({
@@ -147,7 +145,7 @@ export class UserService {
   async remove(DeleteUserDto: Delete_UserDto, token_data) {
     await this.checkData(Delete_UserDto, DeleteUserDto);
     if (token_data['roleId'] !== 1 && token_data['id'] !== DeleteUserDto.id) {
-      throw new BadRequestException('Only admin can delete other users!');
+      throw new NotFoundException();
     }
 
     const user = await this.prisma.user.findUnique({
