@@ -8,10 +8,12 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
 import { AuthGuard } from 'src/guards';
+import { PostFilterDto} from './dto/filter.dto';
 
 
 @Controller('posts')
@@ -26,6 +28,13 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('filter-sort')
+  async getFilteredPosts(@Body() filterDto: PostFilterDto, @Req() request) {
+    const tokenData = request.user;
+    return this.postsService.filterAndSortPosts(filterDto, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
   @Get('all')
   findAll(@Req() request) {
     const tokenData = request.user;
@@ -33,7 +42,7 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(':id')
+  @Get('id/:id')
   findOne(@Param('id') id: string, @Req() request) {
     const tokenData = request.user;
     return this.postsService.findOne(+id, tokenData);
