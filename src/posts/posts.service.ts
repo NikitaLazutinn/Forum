@@ -1,3 +1,4 @@
+import { select } from './../constants/post.constants';
 import {
   BadRequestException,
   Injectable,
@@ -12,43 +13,9 @@ import {
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CategoriesService } from 'src/categories/categories.service';
-import { PostFilterDto, SearchPostsDto } from './dto/filter.dto';
+import { PostFilterDto} from './dto/filter.dto';
 
-const select = {
-    title: true,
-    content: true,
-    createdAt: true,
-    updatedAt: true,
-    author: {
-      select: {
-        id: true,
-        name: true, 
-      },
-    },
-    comments: {
-      select: {
-        id: true,
-        content: true,
-        userId: true, 
-      },
-    },
-    categories: {
-      select: {
-        category: {
-          select: {
-            id: true,
-            name: true, 
-          },
-        },
-      },
-    },
-    likes: {
-      select: {
-        id: true,
-        userId: true, 
-      },
-    },
-  };
+
 @Injectable()
 export class PostsService {
   constructor(
@@ -224,7 +191,7 @@ export class PostsService {
   }
 
   async filterAndSortPosts(filterDto: PostFilterDto, token_data) {
-    let {
+    const {
       title,
       published,
       content,
@@ -233,6 +200,11 @@ export class PostsService {
       categoryName,
       sortField,
       sortOrder,
+      searchQuery,
+      createdFrom,
+      createdTo,
+      updatedFrom,
+      updatedTo,
       skip = 0,
       take = 10,
     } = filterDto;
@@ -255,17 +227,39 @@ export class PostsService {
         : undefined,
     ];
 
+    if (searchQuery) {
+      conditions.push({
+        OR: [
+          { title: { contains: searchQuery, mode: 'insensitive' } },
+          { content: { contains: searchQuery, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    if (createdFrom || createdTo) {
+      conditions.push({
+        createdAt: {
+          ...(createdFrom ? { gte: new Date(createdFrom) } : {}),
+          ...(createdTo ? { lte: new Date(createdTo) } : {}),
+        },
+      });
+    }
+
+    if (updatedFrom || updatedTo) {
+      conditions.push({
+        updatedAt: {
+          ...(updatedFrom ? { gte: new Date(updatedFrom) } : {}),
+          ...(updatedTo ? { lte: new Date(updatedTo) } : {}),
+        },
+      });
+    }
+
     if (token_data['roleId'] === 1) {
-      if (published) {
-        conditions.push(
-          published ? { published: { contains: published } } : undefined,
-        );
+      if (published !== undefined) {
+        conditions.push({ published });
       }
     } else {
-      published = true;
-      conditions.push(
-        published ? { published: { contains: published } } : undefined,
-      );
+      conditions.push({ published: true });
     }
 
     const where = {
@@ -281,34 +275,8 @@ export class PostsService {
       skip,
       take,
       orderBy,
-      select: select,
+      select, 
     });
-  }
-
-  async searchPosts(searchDto: SearchPostsDto, token_data) {
-    const { searchQuery, skip = 0, take = 10 } = searchDto;
-
-    const where:any = searchQuery
-      ? {
-          OR: [
-            { title: { contains: searchQuery, mode: 'insensitive' } },
-            { content: { contains: searchQuery, mode: 'insensitive' } },
-          ],
-        }
-      : {};
-
-    if (token_data['roleId'] === 0) {
-      where.published = true;
-    }
-
-    const posts = await this.prisma.post.findMany({
-      where,
-      skip,
-      take,
-      select
-    });
-
-    return posts;
   }
 }
 

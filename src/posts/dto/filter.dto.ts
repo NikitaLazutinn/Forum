@@ -3,6 +3,22 @@ import { IsOptional, IsBoolean, IsInt, IsString, IsDate, IsIn, IsPositive } from
 export class PostFilterDto {
   @IsOptional()
   @IsString()
+  createdFrom?: Date;
+
+  @IsOptional()
+  @IsString()
+  createdTo?: Date;
+
+  @IsOptional()
+  @IsString()
+  updatedFrom?: Date;
+
+  @IsOptional()
+  @IsString()
+  updatedTo?: Date;
+
+  @IsOptional()
+  @IsString()
   published?: boolean;
 
   @IsOptional()
@@ -27,7 +43,6 @@ export class PostFilterDto {
 
   @IsOptional()
   @IsString()
-  @IsIn(['title', 'content', 'createdAt', 'updatedAt'])
   sortField?: string;
 
   @IsOptional()
@@ -37,23 +52,15 @@ export class PostFilterDto {
   @IsOptional()
   @IsInt()
   @IsPositive()
-  skip?: number; 
+  skip?: number;
 
   @IsOptional()
   @IsInt()
   @IsPositive()
   take?: number;
-}
 
-export class SearchPostsDto {
   @IsOptional()
   @IsString()
   searchQuery?: string;
-
-  @IsOptional()
-  skip?: number;
-
-  @IsOptional()
-  take?: number;
 }
 
