@@ -12,7 +12,7 @@ import {
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CategoriesService } from 'src/categories/categories.service';
-import { PostFilterDto } from './dto/filter.dto';
+import { PostFilterDto, SearchPostsDto } from './dto/filter.dto';
 
 const select = {
     title: true,
@@ -233,11 +233,11 @@ export class PostsService {
       categoryName,
       sortField,
       sortOrder,
-      skip = 0, 
-      take = 10
+      skip = 0,
+      take = 10,
     } = filterDto;
 
-    const conditions:any = [
+    const conditions: any = [
       title ? { title: { contains: title } } : undefined,
       content ? { content: { contains: content } } : undefined,
       createdAt ? { createdAt: { equals: createdAt } } : undefined,
@@ -255,10 +255,11 @@ export class PostsService {
         : undefined,
     ];
 
-    
     if (token_data['roleId'] === 1) {
       if (published) {
-        conditions.push(published ? { published: { contains: published } } : undefined);
+        conditions.push(
+          published ? { published: { contains: published } } : undefined,
+        );
       }
     } else {
       published = true;
@@ -277,11 +278,37 @@ export class PostsService {
 
     return this.prisma.post.findMany({
       where,
-      skip, 
+      skip,
       take,
       orderBy,
       select: select,
     });
+  }
+
+  async searchPosts(searchDto: SearchPostsDto, token_data) {
+    const { searchQuery, skip = 0, take = 10 } = searchDto;
+
+    const where:any = searchQuery
+      ? {
+          OR: [
+            { title: { contains: searchQuery, mode: 'insensitive' } },
+            { content: { contains: searchQuery, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
+    if (token_data['roleId'] === 0) {
+      where.published = true;
+    }
+
+    const posts = await this.prisma.post.findMany({
+      where,
+      skip,
+      take,
+      select
+    });
+
+    return posts;
   }
 }
 

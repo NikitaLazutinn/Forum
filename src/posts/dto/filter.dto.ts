@@ -45,3 +45,15 @@ export class PostFilterDto {
   take?: number;
 }
 
+export class SearchPostsDto {
+  @IsOptional()
+  @IsString()
+  searchQuery?: string;
+
+  @IsOptional()
+  skip?: number;
+
+  @IsOptional()
+  take?: number;
+}
+

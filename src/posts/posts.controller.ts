@@ -13,7 +13,8 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
 import { AuthGuard } from 'src/guards';
-import { PostFilterDto } from './dto/filter.dto';
+import { PostFilterDto, SearchPostsDto } from './dto/filter.dto';
+import { Serializable } from 'child_process';
 
 
 @Controller('posts')
@@ -42,10 +43,17 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(':id')
+  @Get('id/:id')
   findOne(@Param('id') id: string, @Req() request) {
     const tokenData = request.user;
     return this.postsService.findOne(+id, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('search')
+  async searchPosts(@Body() searchDto: SearchPostsDto, @Req() request) {
+    const tokenData = request.user;
+    return this.postsService.searchPosts(searchDto, tokenData);
   }
 
   @UseGuards(AuthGuard)
