@@ -10,6 +10,8 @@ import {
   CreatePostDto,
   DeletePostDto,
   UpdatePostDto,
+  AddCommentDto,
+  DeleteCommentDto,
 } from './dto/create-post.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
@@ -280,21 +282,21 @@ export class PostsService {
   }
 
   async like(data: LikeDto, token_data) {
+    await this.checkData(LikeDto, data);
+
     const { postId } = data;
     const userId = token_data.id;
-    console.log(postId);
-    console.log(token_data);
 
     const exist = await this.prisma.like.findFirst({
-      where: { userId, postId},
+      where: { userId, postId },
     });
 
-    if(exist === null){     
+    if (exist === null) {
       const like = await this.prisma.like.create({
         data: {
           postId,
           userId,
-        }
+        },
       });
 
       return {
@@ -304,13 +306,57 @@ export class PostsService {
     }
 
     await this.prisma.like.delete({
-      where: { id: exist.id}
+      where: { id: exist.id },
     });
 
     return {
       statusCode: 204,
       message: 'Like deleted successfully',
     };
+  }
 
+  async addComment(data: AddCommentDto, token_data) {
+    await this.checkData(AddCommentDto, data);
+
+    const { postId, content } = data;
+    const userId = token_data.id;
+
+    const comment = await this.prisma.comment.create({
+      data: {
+        postId,
+        userId,
+        content,
+      },
+    });
+
+    return {
+      statusCode: 201,
+      message: 'Comment added successfully',
+      comment: comment,
+    };
+  }
+
+  async deleteComment(data: DeleteCommentDto, token_data) {
+    await this.checkData(DeleteCommentDto, data);
+    const { commentId } = data;
+
+    const comm:any = await this.prisma.comment.findUnique({
+      where: { id:commentId },
+    });
+
+    if (token_data['roleId'] !== 1 && token_data['id'] !== comm.authorId) {
+      throw new NotFoundException();
+    }
+    
+
+    await this.prisma.comment.delete({
+      where: { id: commentId },
+    });
+
+    return {
+      statusCode: 204,
+      message: 'Comment deleted successfully'
+    };
   }
 }
+

@@ -16,6 +16,8 @@ import {
   CreatePostDto,
   DeletePostDto,
   UpdatePostDto,
+  AddCommentDto,
+  DeleteCommentDto,
 } from './dto/create-post.dto';
 import { AuthGuard } from 'src/guards';
 import { PostFilterDto } from './dto/filter.dto';
@@ -32,10 +34,10 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('like')
-  async like(@Body() likeDto: LikeDto, @Req() request) {
+  @Post('add_comment')
+  async add_comment(@Body() addCommentDto: AddCommentDto, @Req() request) {
     const tokenData = request.user;
-    return this.postsService.like(likeDto, tokenData);
+    return this.postsService.addComment(addCommentDto, tokenData);
   }
 
   @UseGuards(AuthGuard)
@@ -67,9 +69,26 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard)
+  @Patch('like')
+  async like(@Body() likeDto: LikeDto, @Req() request) {
+    const tokenData = request.user;
+    return this.postsService.like(likeDto, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
   @Delete('delete')
   async remove(@Body() deletePostDto: DeletePostDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.remove(deletePostDto, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('delete_comment')
+  async delete_comment(
+    @Body() deleteCommentDto: DeleteCommentDto,
+    @Req() request,
+  ) {
+    const tokenData = request.user;
+    return this.postsService.deleteComment(deleteCommentDto, tokenData);
   }
 }
