@@ -15,6 +15,10 @@ export class UpdatePostDto {
   };
 }
 
+export class LikeDto {
+  postId: number;
+}
+
 export class DeletePostDto {
   id: number;
 }

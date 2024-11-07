@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  LikeDto,
   CreatePostDto,
   DeletePostDto,
   UpdatePostDto,
@@ -13,8 +14,7 @@ import {
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CategoriesService } from 'src/categories/categories.service';
-import { PostFilterDto} from './dto/filter.dto';
-
+import { PostFilterDto } from './dto/filter.dto';
 
 @Injectable()
 export class PostsService {
@@ -275,8 +275,42 @@ export class PostsService {
       skip,
       take,
       orderBy,
-      select, 
+      select,
     });
   }
-}
 
+  async like(data: LikeDto, token_data) {
+    const { postId } = data;
+    const userId = token_data.id;
+    console.log(postId);
+    console.log(token_data);
+
+    const exist = await this.prisma.like.findFirst({
+      where: { userId, postId},
+    });
+
+    if(exist === null){     
+      const like = await this.prisma.like.create({
+        data: {
+          postId,
+          userId,
+        }
+      });
+
+      return {
+        statusCode: 201,
+        message: 'Like added successfully',
+      };
+    }
+
+    await this.prisma.like.delete({
+      where: { id: exist.id}
+    });
+
+    return {
+      statusCode: 204,
+      message: 'Like deleted successfully',
+    };
+
+  }
+}

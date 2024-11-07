@@ -11,10 +11,14 @@ import {
   Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
+import {
+  LikeDto,
+  CreatePostDto,
+  DeletePostDto,
+  UpdatePostDto,
+} from './dto/create-post.dto';
 import { AuthGuard } from 'src/guards';
-import { PostFilterDto} from './dto/filter.dto';
-
+import { PostFilterDto } from './dto/filter.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -25,6 +29,13 @@ export class PostsController {
   create(@Body() createPostDto: CreatePostDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.create(createPostDto, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('like')
+  async like(@Body() likeDto: LikeDto, @Req() request) {
+    const tokenData = request.user;
+    return this.postsService.like(likeDto, tokenData);
   }
 
   @UseGuards(AuthGuard)
