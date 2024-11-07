@@ -43,7 +43,7 @@ export class PostsController {
 
   @UseGuards(AuthGuard)
   @Get('id/:id')
-  findOne(@Param('id') id: string, @Req() request) {
+  async findOne(@Param('id') id: string, @Req() request) {
     const tokenData = request.user;
     return this.postsService.findOne(+id, tokenData);
   }

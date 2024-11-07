@@ -14,7 +14,9 @@ import { logInDto, logInResponceDto } from './dto/logInDto';
 import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
 import { linkResetResp, ResetDto } from './dto/resetDto';
-
+import { OAuth2Client } from 'google-auth-library';
+import * as jwt from 'jsonwebtoken';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -65,6 +67,58 @@ export class AuthService {
     }
   }
 
+
+  async googleAuth(data) {
+    try {
+      const find = await this.user_service.findEmail(data.email);
+      const existing:any = find.user;
+
+      if (existing !== null) {
+        const tokenParametrs = {
+          id: existing.id,
+          roleId: existing.roleId,
+        };
+
+        const JWToken = this.generateAccessToken(tokenParametrs);
+
+      return {
+        statusCode: 200,
+        message: 'User loggedIn successfully',
+        name: existing.name,
+        accessToken: JWToken,
+      };
+
+      }
+
+      let name = '';
+      data.firstName ? (name += data.firstName) : 0;
+      data.lastName ? (name += data.lastName) : 0;
+
+      const hashedPassword = await this.hashPassword('');
+      const registerData = {
+        email: data.email,
+        name: name,
+        password: hashedPassword,
+      };
+
+      const user = await this.user_service.create(registerData);
+      const tokenParametrs = {
+        id: user.id,
+        roleId: user.roleId,
+      };
+      const JWToken = this.generateAccessToken(tokenParametrs);
+
+      return {
+        statusCode: 201,
+        message: 'User created successfully',
+        properties: { name: user.name, email: user.email },
+        token: JWToken,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async logIn(data: logInDto): Promise<logInResponceDto> {
     const LogInDto = plainToClass(logInDto, data);
     const errors = await validate(LogInDto);
@@ -101,7 +155,7 @@ export class AuthService {
       await this.prisma.user.update({
         where: { id: existingUser.id },
         data: {
-          lastLoggedIn: new Date()
+          lastLoggedIn: new Date(),
         },
       });
 
