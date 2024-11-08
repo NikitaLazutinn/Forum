@@ -11,18 +11,7 @@ import { AddCommentDto, DeleteCommentDto, EditCommentDto, ShowCommentDto } from 
 @Injectable()
 export class CommentService {
   constructor(private prisma: PrismaService) {}
-
-  async checkData(dto, data) {
-    const registerDto = plainToClass(dto, data);
-
-    const errors = await validate(registerDto);
-    if (errors.length > 0) {
-      throw new BadRequestException('Invalid data format');
-    }
-  }
-
   async addComment(data: AddCommentDto, token_data) {
-    await this.checkData(AddCommentDto, data);
 
     const { postId, content } = data;
     const userId = token_data.id;
@@ -43,7 +32,6 @@ export class CommentService {
   }
 
   async showComments(data: ShowCommentDto) {
-    await this.checkData(ShowCommentDto, data);
 
     const { postId } = data;
 
@@ -56,12 +44,12 @@ export class CommentService {
   }
 
   async editComment(data: EditCommentDto, token_data) {
-    await this.checkData(EditCommentDto, data);
 
     const { commentId, content } = data;
     const userId = token_data.id;
 
     const comment = await this.prisma.comment.findUnique({where:{id:commentId}});
+
 
     if(userId !== comment.userId){
       throw new BadRequestException('This is not your comment!');
@@ -78,12 +66,11 @@ export class CommentService {
     return {
       statusCode: 203,
       message: 'Comment updated successfully!',
-      comment: comment,
+      content: content,
     };
   }
 
   async deleteComment(data: DeleteCommentDto, token_data) {
-    await this.checkData(DeleteCommentDto, data);
     const { commentId } = data;
 
     const comm: any = await this.prisma.comment.findUnique({

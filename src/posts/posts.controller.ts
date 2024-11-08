@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   Req,
-  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import {
@@ -16,11 +15,13 @@ import {
   CreatePostDto,
   DeletePostDto,
   UpdatePostDto,
-  AddCommentDto,
-  DeleteCommentDto,
 } from './dto/create-post.dto';
 import { AuthGuard } from 'src/guards';
 import { PostFilterDto } from './dto/filter.dto';
+import { ShowCommentDto,
+  AddCommentDto,
+  DeleteCommentDto,
+  EditCommentDto} from './dto/comment_dto';
 
 @Controller('posts')
 export class PostsController {
@@ -61,11 +62,23 @@ export class PostsController {
     return this.postsService.findOne(+id, tokenData);
   }
 
+  @Get('all_comments')
+  async all_comments(@Body() showCommentDto: ShowCommentDto) {
+    return this.postsService.allComments(showCommentDto);
+  }
+
   @UseGuards(AuthGuard)
   @Patch('edit')
   async update(@Body() updatePostDto: UpdatePostDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.update(updatePostDto, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('edit_comment')
+  async update_comment(@Body() editCommentDto: EditCommentDto, @Req() request) {
+    const tokenData = request.user;
+    return this.postsService.updateComment(editCommentDto, tokenData);
   }
 
   @UseGuards(AuthGuard)

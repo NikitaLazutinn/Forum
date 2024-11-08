@@ -9,20 +9,21 @@ import {
   LikeDto,
   CreatePostDto,
   DeletePostDto,
-  UpdatePostDto,
-  AddCommentDto,
-  DeleteCommentDto,
+  UpdatePostDto
 } from './dto/create-post.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CategoriesService } from 'src/categories/categories.service';
 import { PostFilterDto } from './dto/filter.dto';
+import { CommentService } from 'src/comments/comments.service';
+import { ShowCommentDto,AddCommentDto,DeleteCommentDto,EditCommentDto} from './dto/comment_dto';
 
 @Injectable()
 export class PostsService {
   constructor(
     private readonly prisma: PrismaService,
     private categoriesService: CategoriesService,
+    private commentService: CommentService,
   ) {}
 
   async checkData(dto, data) {
@@ -317,37 +318,20 @@ export class PostsService {
 
   async addComment(data: AddCommentDto, token_data) {
     await this.checkData(AddCommentDto, data);
-
-    const { postId, content } = data;
-    const userId = token_data.id;
-
-    const comment = await this.prisma.comment.create({
-      data: {
-        postId,
-        userId,
-        content,
-      },
-    });
-
-    return {
-      statusCode: 201,
-      message: 'Comment added successfully',
-      comment: comment,
-    };
+    return await this.commentService.addComment(data, token_data);
   }
 
   async deleteComment(data: DeleteCommentDto, token_data) {
     await this.checkData(DeleteCommentDto, data);
     const { commentId } = data;
 
-    const comm:any = await this.prisma.comment.findUnique({
-      where: { id:commentId },
+    const comm: any = await this.prisma.comment.findUnique({
+      where: { id: commentId },
     });
 
     if (token_data['roleId'] !== 1 && token_data['id'] !== comm.authorId) {
       throw new NotFoundException();
     }
-    
 
     await this.prisma.comment.delete({
       where: { id: commentId },
@@ -355,8 +339,18 @@ export class PostsService {
 
     return {
       statusCode: 204,
-      message: 'Comment deleted successfully'
+      message: 'Comment deleted successfully',
     };
+  }
+
+  async updateComment(data: EditCommentDto, token_data) {
+    await this.checkData(EditCommentDto, data);
+    return await this.commentService.editComment(data, token_data);
+  }
+
+  async allComments(data: ShowCommentDto) {
+    await this.checkData(ShowCommentDto, data);
+    return await this.commentService.showComments(data);
   }
 }
 

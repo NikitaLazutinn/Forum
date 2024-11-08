@@ -1,3 +1,4 @@
+import { CommentsModule } from './../comments/comments.module';
 import { Module } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
@@ -12,10 +13,11 @@ import { CategoriesModule } from 'src/categories/categories.module';
     PrismaModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'defaultSecret',
-      signOptions: { expiresIn: '500s' },
+      signOptions: { expiresIn: '5000s' },
     }),
     UserModule,
-    CategoriesModule
+    CategoriesModule,
+    CommentsModule
   ],
   controllers: [PostsController],
   providers: [PostsService],
