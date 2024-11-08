@@ -59,6 +59,7 @@ export class CommentService {
       where: { id: commentId },
       data: {
         content: content,
+        updatedAt: new Date(),
       },
     });
 

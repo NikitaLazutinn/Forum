@@ -67,6 +67,11 @@ export class PostsController {
     return this.postsService.allComments(showCommentDto);
   }
 
+  @Get('show_likes')
+  async all_likes(@Body() likeDto: LikeDto) {
+    return this.postsService.showLikes(likeDto);
+  }
+
   @UseGuards(AuthGuard)
   @Patch('edit')
   async update(@Body() updatePostDto: UpdatePostDto, @Req() request) {

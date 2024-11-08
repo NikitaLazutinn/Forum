@@ -17,6 +17,7 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { PostFilterDto } from './dto/filter.dto';
 import { CommentService } from 'src/comments/comments.service';
 import { ShowCommentDto,AddCommentDto,DeleteCommentDto,EditCommentDto} from './dto/comment_dto';
+import { LiklesService } from 'src/likes/likes.service';
 
 @Injectable()
 export class PostsService {
@@ -24,6 +25,7 @@ export class PostsService {
     private readonly prisma: PrismaService,
     private categoriesService: CategoriesService,
     private commentService: CommentService,
+    private liklesService: LiklesService,
   ) {}
 
   async checkData(dto, data) {
@@ -284,36 +286,12 @@ export class PostsService {
 
   async like(data: LikeDto, token_data) {
     await this.checkData(LikeDto, data);
+    return await this.liklesService.like(data, token_data);
+  }
 
-    const { postId } = data;
-    const userId = token_data.id;
-
-    const exist = await this.prisma.like.findFirst({
-      where: { userId, postId },
-    });
-
-    if (exist === null) {
-      const like = await this.prisma.like.create({
-        data: {
-          postId,
-          userId,
-        },
-      });
-
-      return {
-        statusCode: 201,
-        message: 'Like added successfully',
-      };
-    }
-
-    await this.prisma.like.delete({
-      where: { id: exist.id },
-    });
-
-    return {
-      statusCode: 204,
-      message: 'Like deleted successfully',
-    };
+  async showLikes(data: LikeDto) {
+    await this.checkData(LikeDto, data);
+    return await this.liklesService.showLikes(data);
   }
 
   async addComment(data: AddCommentDto, token_data) {
