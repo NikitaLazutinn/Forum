@@ -8,20 +8,16 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import {
   LikeDto,
   CreatePostDto,
-  DeletePostDto,
   UpdatePostDto,
 } from './dto/create-post.dto';
 import { AuthGuard } from 'src/guards';
 import { PostFilterDto } from './dto/filter.dto';
-import { ShowCommentDto,
-  AddCommentDto,
-  DeleteCommentDto,
-  EditCommentDto} from './dto/comment_dto';
 
 @Controller('posts')
 export class PostsController {
@@ -35,15 +31,8 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('add_comment')
-  async add_comment(@Body() addCommentDto: AddCommentDto, @Req() request) {
-    const tokenData = request.user;
-    return this.postsService.addComment(addCommentDto, tokenData);
-  }
-
-  @UseGuards(AuthGuard)
   @Get('filter-sort')
-  async getFilteredPosts(@Body() filterDto: PostFilterDto, @Req() request) {
+  async getFilteredPosts(@Query() filterDto: PostFilterDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.filterAndSortPosts(filterDto, tokenData);
   }
@@ -62,51 +51,21 @@ export class PostsController {
     return this.postsService.findOne(+id, tokenData);
   }
 
-  @Get('all_comments')
-  async all_comments(@Body() showCommentDto: ShowCommentDto) {
-    return this.postsService.allComments(showCommentDto);
-  }
-
-  @Get('show_likes')
-  async all_likes(@Body() likeDto: LikeDto) {
-    return this.postsService.showLikes(likeDto);
-  }
-
   @UseGuards(AuthGuard)
-  @Patch('edit')
-  async update(@Body() updatePostDto: UpdatePostDto, @Req() request) {
-    const tokenData = request.user;
-    return this.postsService.update(updatePostDto, tokenData);
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('edit_comment')
-  async update_comment(@Body() editCommentDto: EditCommentDto, @Req() request) {
-    const tokenData = request.user;
-    return this.postsService.updateComment(editCommentDto, tokenData);
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('like')
-  async like(@Body() likeDto: LikeDto, @Req() request) {
-    const tokenData = request.user;
-    return this.postsService.like(likeDto, tokenData);
-  }
-
-  @UseGuards(AuthGuard)
-  @Delete('delete')
-  async remove(@Body() deletePostDto: DeletePostDto, @Req() request) {
-    const tokenData = request.user;
-    return this.postsService.remove(deletePostDto, tokenData);
-  }
-
-  @UseGuards(AuthGuard)
-  @Delete('delete_comment')
-  async delete_comment(
-    @Body() deleteCommentDto: DeleteCommentDto,
+  @Patch('edit/:id')
+  async update(
+    @Param('id') id: number,
+    @Body() updatePostDto: UpdatePostDto,
     @Req() request,
   ) {
     const tokenData = request.user;
-    return this.postsService.deleteComment(deleteCommentDto, tokenData);
+    return this.postsService.update(+id, updatePostDto, tokenData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('delete/:id')
+  async remove(@Param('id') id: number, @Req() request) {
+    const tokenData = request.user;
+    return this.postsService.remove(+id, tokenData);
   }
 }

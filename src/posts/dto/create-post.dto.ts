@@ -6,7 +6,6 @@ export class CreatePostDto {
 
 // update-post.dto.ts
 export class UpdatePostDto {
-  id: number;
   params: {
     title: string;
     content: string;

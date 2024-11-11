@@ -226,10 +226,11 @@ export class AuthService {
       }
       const hashedPassword: string = await this.hashPassword(body['password']);
       const updateData = {
-        id: userId,
-        params: { name: '', email: '', password: hashedPassword },
+        name: '', 
+        email: '', 
+        password: hashedPassword ,
       };
-      return await this.user_service.update_user(updateData, tokenData);
+      return await this.user_service.update_user(userId, updateData, tokenData);
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired token');
     }

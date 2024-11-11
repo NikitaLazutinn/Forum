@@ -12,7 +12,6 @@ import { AddCommentDto, DeleteCommentDto, EditCommentDto, ShowCommentDto } from 
 export class CommentService {
   constructor(private prisma: PrismaService) {}
   async addComment(data: AddCommentDto, token_data) {
-
     const { postId, content } = data;
     const userId = token_data.id;
 
@@ -31,9 +30,8 @@ export class CommentService {
     };
   }
 
-  async showComments(data: ShowCommentDto) {
-
-    const { postId } = data;
+  async showComments(data: number) {
+    const postId = data['postId'];
 
     const comments = await this.prisma.comment.findMany({ where: { postId } });
 
@@ -43,15 +41,15 @@ export class CommentService {
     };
   }
 
-  async editComment(data: EditCommentDto, token_data) {
-
-    const { commentId, content } = data;
+  async editComment(commentId: number, data: EditCommentDto, token_data) {
+    const { content } = data;
     const userId = token_data.id;
 
-    const comment = await this.prisma.comment.findUnique({where:{id:commentId}});
+    const comment = await this.prisma.comment.findUnique({
+      where: { id: commentId },
+    });
 
-
-    if(userId !== comment.userId){
+    if (userId !== comment.userId) {
       throw new BadRequestException('This is not your comment!');
     }
 
@@ -63,7 +61,6 @@ export class CommentService {
       },
     });
 
-
     return {
       statusCode: 203,
       message: 'Comment updated successfully!',
@@ -71,8 +68,7 @@ export class CommentService {
     };
   }
 
-  async deleteComment(data: DeleteCommentDto, token_data) {
-    const { commentId } = data;
+  async deleteComment(commentId:number, token_data) {
 
     const comm: any = await this.prisma.comment.findUnique({
       where: { id: commentId },

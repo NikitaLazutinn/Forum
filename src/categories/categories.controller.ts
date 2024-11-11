@@ -35,16 +35,20 @@ export class CategoriesController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('edit')
-  async update(@Body() updateDto: UpdateDto, @Req() request) {
+  @Patch('edit/:id')
+  async update(
+    @Param('id') id: number,
+    @Body() updateDto: UpdateDto,
+    @Req() request,
+  ) {
     const tokenData = request.user;
-    return this.categoriesService.update_category(updateDto, tokenData);
+    return this.categoriesService.update_category(+id, updateDto, tokenData);
   }
 
   @UseGuards(AuthGuard)
-  @Delete('delete')
-  async remove(@Body() id: number, @Req() request) {
+  @Delete('delete/:id')
+  async remove(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;
-    return this.categoriesService.remove(id, tokenData);
+    return this.categoriesService.remove(+id, tokenData);
   }
 }

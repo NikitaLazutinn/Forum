@@ -93,25 +93,25 @@ export class UserService {
     };
   }
 
-  async update_user(UpdateUserDto: Update_UserDto, token_data) {
+  async update_user(id:number, UpdateUserDto: Update_UserDto, token_data) {
     await this.checkData(Update_UserDto, UpdateUserDto);
-    const params = UpdateUserDto.params;
-    if (token_data['roleId'] !== 1 && token_data['id'] !== UpdateUserDto.id) {
+    const params = UpdateUserDto;
+    if (token_data['roleId'] !== 1 && token_data['id'] !== id) {
       throw new NotFoundException();
     }
 
     const user = await this.prisma.user.findUnique({
-      where: { id: UpdateUserDto.id },
+      where: { id: id },
     });
     if (user === null) {
       throw new NotFoundException(
-        `There is no user with id: ${UpdateUserDto.id}`,
+        `There is no user with id: ${id}`,
       );
     }
 
     if (params.email.length > 0) {
       await this.prisma.user.update({
-        where: { id: UpdateUserDto.id },
+        where: { id: id },
         data: {
           email: params.email,
         },
@@ -120,7 +120,7 @@ export class UserService {
 
     if (params.name.length > 0) {
       await this.prisma.user.update({
-        where: { id: UpdateUserDto.id },
+        where: { id: id },
         data: {
           name: params.name,
         },
@@ -129,7 +129,7 @@ export class UserService {
 
     if (params.password.length > 0) {
       await this.prisma.user.update({
-        where: { id: UpdateUserDto.id },
+        where: { id: id },
         data: {
           password: params.password,
         },
@@ -142,21 +142,20 @@ export class UserService {
     };
   }
 
-  async remove(DeleteUserDto: Delete_UserDto, token_data) {
-    await this.checkData(Delete_UserDto, DeleteUserDto);
-    if (token_data['roleId'] !== 1 && token_data['id'] !== DeleteUserDto.id) {
+  async remove(id:number, token_data) {
+    if (token_data['roleId'] !== 1 && token_data['id'] !== id) {
       throw new NotFoundException();
     }
 
     const user = await this.prisma.user.findUnique({
-      where: { id: DeleteUserDto.id },
+      where: { id: id },
     });
     if (user === null) {
       throw new NotFoundException(
-        `There is no user with id: ${DeleteUserDto.id}`,
+        `There is no user with id: ${id}`,
       );
     }
-    await this.prisma.user.delete({ where: { id: DeleteUserDto.id } });
+    await this.prisma.user.delete({ where: { id: id } });
 
     return {
       statusCode: 204,
@@ -164,10 +163,9 @@ export class UserService {
     };
   }
 
-  async admin(data: number, token_data) {
-    const id = data['id'];
+  async admin(id: number, token_data) {
     if (token_data['roleId'] !== 1) {
-      throw new NotFoundException('Only admin can use this endpoint!');
+      throw new NotFoundException();
     }
 
     const user = await this.prisma.user.findUnique({

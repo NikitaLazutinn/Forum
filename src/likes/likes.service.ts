@@ -23,8 +23,7 @@ export class LiklesService {
     };
   }
 
-  async like(data: LikeDto, token_data) {
-    const { postId } = data;
+  async like(postId: number, token_data) {
     const userId = token_data.id;
 
     const exist = await this.prisma.like.findFirst({

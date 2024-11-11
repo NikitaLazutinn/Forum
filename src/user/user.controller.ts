@@ -37,23 +37,30 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('edit')
-  async update(@Body() UpdateUserDto: Update_UserDto, @Req() request) {
+  @Patch('edit/:id')
+  async update(
+    @Param('id') id: number,
+    @Body() UpdateUserDto: Update_UserDto,
+    @Req() request,
+  ) {
     const tokenData = request.user;
-    return this.userService.update_user(UpdateUserDto, tokenData);
+    return this.userService.update_user(+id, UpdateUserDto, tokenData);
   }
 
   @UseGuards(AuthGuard)
-  @Delete('delete')
-  async remove(@Body() DeleteUserDto: Delete_UserDto, @Req() request) {
+  @Delete('delete/:id')
+  async remove(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;
-    return this.userService.remove(DeleteUserDto, tokenData);
+    return this.userService.remove(+id, tokenData);
   }
 
   @UseGuards(AuthGuard)
-  @Patch('adminStatus')
-  async adminStatus(@Body() id: number, @Req() request) {
+  @Patch('adminStatus/:id')
+  async adminStatus(
+    @Param('id') id: number,
+    @Req() request,
+  ) {
     const tokenData = request.user;
-    return this.userService.admin(id, tokenData);
+    return this.userService.admin(+id, tokenData);
   }
 }

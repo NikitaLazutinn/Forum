@@ -12,7 +12,6 @@ export class DeleteCommentDto {
 }
 
 export class EditCommentDto {
-  commentId: number;
   content: string;
 }
 

@@ -3,8 +3,7 @@ export class CreateUserDto {
 }
 
 export class Update_UserDto {
-  id: number;
-  params: { name: string; email: string; password: string } = { name: '', email: '', password: '' };
+   name: string; email: string; password;
 }
 
 export class Delete_UserDto {
