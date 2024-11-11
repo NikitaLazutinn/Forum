@@ -6,7 +6,6 @@ export class CreatePostDto {
 
 // update-post.dto.ts
 export class UpdatePostDto {
-  id: number;
   params: {
     title: string;
     content: string;
@@ -15,6 +14,12 @@ export class UpdatePostDto {
   };
 }
 
+export class LikeDto {
+  postId: number;
+}
+
 export class DeletePostDto {
   id: number;
 }
+
+

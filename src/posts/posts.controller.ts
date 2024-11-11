@@ -11,10 +11,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/create-post.dto';
+import {
+  LikeDto,
+  CreatePostDto,
+  UpdatePostDto,
+} from './dto/create-post.dto';
 import { AuthGuard } from 'src/guards';
-import { PostFilterDto} from './dto/filter.dto';
-
+import { PostFilterDto } from './dto/filter.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -29,7 +32,7 @@ export class PostsController {
 
   @UseGuards(AuthGuard)
   @Get('filter-sort')
-  async getFilteredPosts(@Body() filterDto: PostFilterDto, @Req() request) {
+  async getFilteredPosts(@Query() filterDto: PostFilterDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.filterAndSortPosts(filterDto, tokenData);
   }
@@ -49,16 +52,20 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('edit')
-  async update(@Body() updatePostDto: UpdatePostDto, @Req() request) {
+  @Patch('edit/:id')
+  async update(
+    @Param('id') id: number,
+    @Body() updatePostDto: UpdatePostDto,
+    @Req() request,
+  ) {
     const tokenData = request.user;
-    return this.postsService.update(updatePostDto, tokenData);
+    return this.postsService.update(+id, updatePostDto, tokenData);
   }
 
   @UseGuards(AuthGuard)
-  @Delete('delete')
-  async remove(@Body() deletePostDto: DeletePostDto, @Req() request) {
+  @Delete('delete/:id')
+  async remove(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;
-    return this.postsService.remove(deletePostDto, tokenData);
+    return this.postsService.remove(+id, tokenData);
   }
 }

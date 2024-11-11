@@ -11,9 +11,6 @@ export class CreateDto {
 }
 
 export class UpdateDto {
-  @IsNotEmpty()
-  id: number;
-
   @IsString()
   name: string;
 

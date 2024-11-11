@@ -67,18 +67,18 @@ export class CategoriesService {
     };
   }
 
-  async update_category(updateDto: UpdateDto, token_data) {
+  async update_category(id:number,updateDto: UpdateDto, token_data) {
     await this.checkData(UpdateDto, updateDto);
     if (token_data['roleId'] !== 1) {
       throw new NotFoundException();
     }
 
     const category = await this.prisma.category.findUnique({
-      where: { id: updateDto.id },
+      where: {id: id},
     });
     if (category === null) {
       throw new NotFoundException(
-        `There is no category with id: ${updateDto.id}`,
+        `There is no category with id: ${id}`,
       );
     }
 
@@ -91,7 +91,7 @@ export class CategoriesService {
     }
 
     await this.prisma.category.update({
-      where: { id: updateDto.id },
+      where: {id: id},
       data: data,
     });
 
@@ -101,9 +101,7 @@ export class CategoriesService {
     };
   }
 
-  async remove(data: number, token_data) {
-    const id = data['id'];
-
+  async remove(id: number, token_data) {
     if (token_data['roleId'] !== 1) {
       throw new NotFoundException();
     }

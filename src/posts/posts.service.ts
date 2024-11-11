@@ -6,21 +6,26 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  LikeDto,
   CreatePostDto,
   DeletePostDto,
-  UpdatePostDto,
+  UpdatePostDto
 } from './dto/create-post.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CategoriesService } from 'src/categories/categories.service';
-import { PostFilterDto} from './dto/filter.dto';
-
+import { PostFilterDto } from './dto/filter.dto';
+import { CommentService } from 'src/comments/comments.service';
+import { ShowCommentDto,AddCommentDto,DeleteCommentDto,EditCommentDto} from './dto/comment_dto';
+import { LiklesService } from 'src/likes/likes.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     private readonly prisma: PrismaService,
     private categoriesService: CategoriesService,
+    private commentService: CommentService,
+    private liklesService: LiklesService,
   ) {}
 
   async checkData(dto, data) {
@@ -113,17 +118,17 @@ export class PostsService {
     };
   }
 
-  async update(updatePostDto: UpdatePostDto, token_data) {
+  async update(id: number, updatePostDto: UpdatePostDto, token_data) {
     await this.checkData(UpdatePostDto, updatePostDto);
     await this.categoriesService.ifAvailable(updatePostDto.params.categoriesId);
     const params = updatePostDto.params;
 
     const post = await this.prisma.post.findUnique({
-      where: { id: updatePostDto.id },
+      where: { id: id },
     });
     if (post === null) {
       throw new NotFoundException(
-        `There is no post with id: ${updatePostDto.id}`,
+        `There is no post with id: ${id}`,
       );
     }
     if (token_data['roleId'] !== 1 && token_data['id'] !== post.authorId) {
@@ -132,7 +137,7 @@ export class PostsService {
 
     if (params.title.length > 0) {
       await this.prisma.post.update({
-        where: { id: updatePostDto.id },
+        where: { id: id },
         data: {
           title: params.title,
         },
@@ -141,7 +146,7 @@ export class PostsService {
 
     if (params.content.length > 0) {
       await this.prisma.post.update({
-        where: { id: updatePostDto.id },
+        where: { id: id },
         data: {
           content: params.content,
         },
@@ -149,14 +154,14 @@ export class PostsService {
     }
 
     await this.prisma.post.update({
-      where: { id: updatePostDto.id },
+      where: { id: id },
       data: {
         published: params.published,
       },
     });
 
     await this.categoriesService.UpdateInPost(
-      updatePostDto.id,
+      id,
       updatePostDto.params.categoriesId,
     );
 
@@ -166,23 +171,21 @@ export class PostsService {
     };
   }
 
-  async remove(delete_PostDto: DeletePostDto, token_data) {
-    await this.checkData(DeletePostDto, delete_PostDto);
-
+  async remove(id:number, token_data) {
     const post = await this.prisma.post.findUnique({
-      where: { id: delete_PostDto.id },
+      where: { id: id },
     });
     if (post === null) {
       throw new NotFoundException(
-        `There is no post with id: ${delete_PostDto.id}`,
+        `There is no post with id: ${id}`,
       );
     }
     if (token_data['roleId'] !== 1 && token_data['id'] !== post.authorId) {
       throw new NotFoundException();
     }
 
-    await this.categoriesService.DeleteInPost(delete_PostDto.id);
-    await this.prisma.post.delete({ where: { id: delete_PostDto.id } });
+    await this.categoriesService.DeleteInPost(id);
+    await this.prisma.post.delete({ where: { id: id } });
 
     return {
       statusCode: 204,
@@ -275,8 +278,9 @@ export class PostsService {
       skip,
       take,
       orderBy,
-      select, 
+      select,
     });
   }
+
 }
 
