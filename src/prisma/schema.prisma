@@ -32,6 +32,7 @@ model User {
   posts        Post[]    @relation
   likes        Like[]    @relation
   comments     comment[] @relation
+  actions  UserActionLog[]
 }
 
 model Post {
@@ -85,4 +86,15 @@ model comment {
   updatedAt DateTime @default(now())
   post      Post     @relation("PostComments", fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserActionLog {
+  id            Int      @id @default(autoincrement())
+  action        String
+  userId        Int
+  entityType    String
+  entityId      Int
+  entity        Json
+  operationTime DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
 }
