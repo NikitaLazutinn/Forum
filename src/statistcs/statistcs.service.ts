@@ -23,6 +23,17 @@ export class StatisticsService {
 
     await this.userService.findById(userId);
 
+    if(entity === 'all'){
+      const statistics = await this.aggregateAllStatistics(
+        userId,
+        startDate,
+        endDate,
+        partition,
+      );
+
+      return statistics;
+    }
+
     const statistics = await this.aggregateStatistics(
       userId,
       entity,
@@ -69,21 +80,60 @@ export class StatisticsService {
     while (currentDate <= endDate) {
       const nextDate = this.calculateNextPartitionDate(currentDate, partition);
 
-      const entityCount = await this.prisma[entity].count({
-        where: {
-          userId,
-          createdAt: {
-            gte: currentDate,
-            lt: nextDate,
+       const entityCount = await this.prisma[entity].count({
+          where: {
+            userId,
+            createdAt: {
+              gte: currentDate,
+              lt: nextDate,
+            },
           },
-        },
-      });
+        });
 
-      statistics.push({
-        period: `${currentDate.toISOString()} - ${nextDate.toISOString()}`,
-        count: entityCount,
-      });
+        statistics.push({
+          period: `${currentDate.toISOString()} - ${nextDate.toISOString()}`,
+          count: entityCount,
+        });
+      
+      currentDate.setTime(nextDate.getTime());
+    }
 
+    return statistics;
+  }
+
+  private async aggregateAllStatistics(
+    userId: number,
+    startDate: Date,
+    endDate: Date,
+    partition: string,
+  ) {
+    const statistics = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const nextDate = this.calculateNextPartitionDate(currentDate, partition);
+      let entityCount;
+
+        const entities = ['Post', 'Like', 'comment'];
+        let count: any[] = [];
+        for (const e of entities) {
+          entityCount = await this.prisma[e].count({
+            where: {
+              userId,
+              createdAt: {
+                gte: currentDate,
+                lt: nextDate,
+              },
+            },
+          });
+          count.push({[e]:entityCount})
+        }
+
+        statistics.push({
+          period: `${currentDate.toISOString()} - ${nextDate.toISOString()}`,
+          count
+        });
+      
       currentDate.setTime(nextDate.getTime());
     }
 
