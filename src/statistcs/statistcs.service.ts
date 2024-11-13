@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 
@@ -6,22 +6,22 @@ import { UserService } from 'src/user/user.service';
 export class StatisticsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly userService: UserService,
   ) {}
 
   async fetchStatistics(
     userId: number,
-    interval: string,
+    startDate: Date,
+    endDate: Date,
     entity: string,
     partition: string,
     token_data: string,
   ) {
-
     if (token_data['roleId'] !== 1 && token_data['id'] !== userId) {
       throw new NotFoundException();
     }
 
-    const { startDate, endDate } = this.calculateDateRange(interval);
-
+    await this.userService.findById(userId);
 
     const statistics = await this.aggregateStatistics(
       userId,
@@ -63,7 +63,6 @@ export class StatisticsService {
     endDate: Date,
     partition: string,
   ) {
-
     const statistics = [];
     const currentDate = new Date(startDate);
 

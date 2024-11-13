@@ -3,7 +3,7 @@ import { LiklesService } from './likes.service';
 import { LikeDto } from './dto/create.dto';
 import { AuthGuard } from 'src/guards';
 
-@Controller('comment')
+@Controller('likes')
 export class LiklesController {
   constructor(private readonly liklesService: LiklesService) {}
 
@@ -16,6 +16,6 @@ export class LiklesController {
   @Patch('like/:id')
   async like(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;
-    return this.liklesService.like(id, tokenData);
+    return this.liklesService.like(+id, tokenData);
   }
 }

@@ -57,7 +57,7 @@ export class PostsService {
       title: createPostDto.title,
       content: createPostDto.content,
       published: true,
-      authorId: token_data['id'],
+      userId: token_data['id'],
       categories: {
         create: categories,
       },
@@ -131,7 +131,7 @@ export class PostsService {
         `There is no post with id: ${id}`,
       );
     }
-    if (token_data['roleId'] !== 1 && token_data['id'] !== post.authorId) {
+    if (token_data['roleId'] !== 1 && token_data['id'] !== post.userId) {
       throw new NotFoundException();
     }
 
@@ -180,7 +180,7 @@ export class PostsService {
         `There is no post with id: ${id}`,
       );
     }
-    if (token_data['roleId'] !== 1 && token_data['id'] !== post.authorId) {
+    if (token_data['roleId'] !== 1 && token_data['id'] !== post.userId) {
       throw new NotFoundException();
     }
 

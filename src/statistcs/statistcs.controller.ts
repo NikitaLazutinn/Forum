@@ -18,30 +18,35 @@ export class StatisticsController {
   @UseGuards(AuthGuard)
   async getStatistics(
     @Query('userId') userId: number,
-    @Query('interval') interval: string, 
-    @Query('entity') entity: string, 
-    @Query('partition') partition: string, 
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('entity') entity: string,
+    @Query('partition') partition: string,
     @Req() request,
   ) {
+    const date1 = new Date(Date.parse(startDate + 'T00:00:00.560Z'));
+    const date2 = new Date(Date.parse(endDate + 'T00:00:00.560Z'));
     const token_data = request.user;
 
     const effectiveUserId = userId || token_data.id;
 
-    if (!interval || !entity) {
+    if (!(startDate && endDate) && !entity) {
       throw new BadRequestException('Interval and entity type are required');
     }
 
     const statistics = await this.statisticsService.fetchStatistics(
       +effectiveUserId,
-      interval,
+      date1,
+      date2,
       entity,
       partition,
-      token_data
+      token_data,
     );
 
     return {
       userId: effectiveUserId,
-      interval,
+      startDate,
+      endDate,
       entity,
       partition,
       statistics,
