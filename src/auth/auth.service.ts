@@ -30,13 +30,17 @@ export class AuthService {
     return await bcrypt.hash(password, 10);
   }
 
-  async register(data: RegisterDto): Promise<RegisterResponseDto> {
-    const registerDto = plainToClass(RegisterDto, data);
+  async checkData(dto, data) {
+    const registerDto = plainToClass(dto, data);
 
     const errors = await validate(registerDto);
     if (errors.length > 0) {
       throw new BadRequestException('Invalid data format');
     }
+  }
+
+  async register(data: RegisterDto): Promise<RegisterResponseDto> {
+    await this.checkData(RegisterDto, data);
 
     try {
       const responce = await this.user_service.findEmail(data.email);
@@ -67,11 +71,10 @@ export class AuthService {
     }
   }
 
-
   async googleAuth(data) {
     try {
       const find = await this.user_service.findEmail(data.email);
-      const existing:any = find.user;
+      const existing: any = find.user;
 
       if (existing !== null) {
         const tokenParametrs = {
@@ -81,13 +84,12 @@ export class AuthService {
 
         const JWToken = this.generateAccessToken(tokenParametrs);
 
-      return {
-        statusCode: 200,
-        message: 'User loggedIn successfully',
-        name: existing.name,
-        accessToken: JWToken,
-      };
-
+        return {
+          statusCode: 200,
+          message: 'User loggedIn successfully',
+          name: existing.name,
+          accessToken: JWToken,
+        };
       }
 
       let name = '';
@@ -120,11 +122,7 @@ export class AuthService {
   }
 
   async logIn(data: logInDto): Promise<logInResponceDto> {
-    const LogInDto = plainToClass(logInDto, data);
-    const errors = await validate(LogInDto);
-    if (errors.length > 0) {
-      throw new BadRequestException('Invalid data format');
-    }
+    await this.checkData(logInDto, data);
 
     try {
       const existingUser = await this.prisma.user.findUnique({
@@ -178,6 +176,9 @@ export class AuthService {
   }
 
   async resetPasswordLink(data: string): Promise<linkResetResp> {
+    if (typeof data['email'] !== 'string') {
+      throw new BadRequestException(`Invalid data format!`);
+    }
     const email = data['email'];
     const responce = await this.user_service.findEmail(email);
     const user = responce.user;
@@ -217,8 +218,14 @@ export class AuthService {
   }
 
   async resetPassword(token: string, body: ResetDto): Promise<linkResetResp> {
+    await this.checkData(ResetDto, body);
+    let tokenData;
+    
     try {
-      const tokenData = this.jwtService.verify(token);
+      tokenData = this.jwtService.verify(token);
+    } catch (error) {
+      throw new BadRequestException('Invalid or expired token');
+    }
       const userId = tokenData.id;
 
       if (body.password !== body.confirmPassword) {
@@ -226,13 +233,11 @@ export class AuthService {
       }
       const hashedPassword: string = await this.hashPassword(body['password']);
       const updateData = {
-        name: '', 
-        email: '', 
-        password: hashedPassword ,
+        name: '',
+        email: '',
+        password: hashedPassword,
       };
-      return await this.user_service.update_user(userId, updateData, tokenData);
-    } catch (error) {
-      throw new UnauthorizedException('Invalid or expired token');
-    }
+    return await this.user_service.update_user(userId, updateData, tokenData);
+    
   }
 }

@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsOptional, IsBoolean, IsInt, IsString, IsDate, IsIn, IsPositive } from 'class-validator';
 
 export class PostFilterDto {
@@ -18,7 +19,8 @@ export class PostFilterDto {
   updatedTo?: Date;
 
   @IsOptional()
-  @IsString()
+  @Transform(({ value }) => value === 'true')
+  @IsBoolean()
   published?: boolean;
 
   @IsOptional()
@@ -52,11 +54,13 @@ export class PostFilterDto {
   @IsOptional()
   @IsInt()
   @IsPositive()
+  @Transform(({ value }) => parseInt(value, 10))
   skip?: number;
 
   @IsOptional()
   @IsInt()
   @IsPositive()
+  @Transform(({ value }) => parseInt(value, 10))
   take?: number;
 
   @IsOptional()

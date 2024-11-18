@@ -32,7 +32,7 @@ export class PostsController {
 
   @UseGuards(AuthGuard)
   @Get('filter-sort')
-  async getFilteredPosts(@Query() filterDto: PostFilterDto, @Req() request) {
+   async getFilteredPosts(@Query() filterDto: PostFilterDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.filterAndSortPosts(filterDto, tokenData);
   }

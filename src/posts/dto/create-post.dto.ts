@@ -1,17 +1,25 @@
+import { IsArray, IsBoolean, IsInt, IsString } from "class-validator";
+
 export class CreatePostDto {
+  @IsString()
   title: string;
+  @IsString()
   content: string;
+  @IsArray()
   categoriesId: number[];
 }
 
 // update-post.dto.ts
 export class UpdatePostDto {
-  params: {
-    title: string;
-    content: string;
-    published: boolean;
-    categoriesId: number[];
-  };
+  @IsString()
+  title: string;
+  @IsString()
+  content: string;
+  @IsBoolean()
+  published: boolean;
+  @IsArray()
+  @IsInt({ each: true })
+  categoriesId: number[];
 }
 
 export class LikeDto {

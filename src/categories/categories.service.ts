@@ -112,6 +112,10 @@ export class CategoriesService {
     if (category === null) {
       throw new NotFoundException(`There is no category with id: ${id}`);
     }
+
+    await this.prisma.categoriesOnPosts.deleteMany({
+      where: { categoryId: id },
+    });
     await this.prisma.category.delete({ where: { id: id } });
 
     return {

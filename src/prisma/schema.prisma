@@ -32,6 +32,7 @@ model User {
   posts        Post[]    @relation
   likes        Like[]    @relation
   comments     comment[] @relation
+  actions  UserActionLog[]
 }
 
 model Post {
@@ -41,8 +42,8 @@ model Post {
   published  Boolean    @default(false)
   likes      Like[]     @relation("PostLikes")
   comments   comment[]  @relation("PostComments")
-  authorId   Int
-  author     User       @relation(fields: [authorId], references: [id])
+  userId   Int
+  author     User       @relation(fields: [userId], references: [id])
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @default(now())
   categories CategoriesOnPosts[]  
@@ -85,4 +86,15 @@ model comment {
   updatedAt DateTime @default(now())
   post      Post     @relation("PostComments", fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserActionLog {
+  id            Int      @id @default(autoincrement())
+  action        String
+  userId        Int
+  entityType    String
+  entityId      Int
+  entity        Json
+  operationTime DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
 }

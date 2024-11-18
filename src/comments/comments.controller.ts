@@ -19,15 +19,15 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @UseGuards(AuthGuard)
-  @Post('add')
-  async add_comment(@Body() addCommentDto: AddCommentDto, @Req() request) {
+  @Post('add/:id')
+  async add_comment(@Param('id') id: number, @Body() addCommentDto: AddCommentDto, @Req() request) {
     const tokenData = request.user;
-    return this.commentService.addComment(addCommentDto, tokenData);
+    return this.commentService.addComment(+id,addCommentDto, tokenData);
   }
 
-  @Get('all')
-  async all_comments(@Query() query: number) {
-    return this.commentService.showComments(+query);
+  @Get('all/:id')
+  async all_comments(@Param('id') id: number) {
+    return this.commentService.showComments(+id);
   }
 
   @UseGuards(AuthGuard)
@@ -43,10 +43,7 @@ export class CommentController {
 
   @UseGuards(AuthGuard)
   @Delete('delete/:id')
-  async delete_comment(
-    @Param('id') id: number,
-    @Req() request,
-  ) {
+  async delete_comment(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;
     return this.commentService.deleteComment(+id, tokenData);
   }

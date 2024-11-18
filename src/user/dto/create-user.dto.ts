@@ -1,9 +1,16 @@
+import { IsString } from "class-validator";
+
 export class CreateUserDto {
   token: string;
 }
 
 export class Update_UserDto {
-   name: string; email: string; password;
+  @IsString()
+  name: string;
+  @IsString()
+  email: string;
+  @IsString()
+  password: string;
 }
 
 export class Delete_UserDto {

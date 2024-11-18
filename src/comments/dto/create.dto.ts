@@ -1,9 +1,11 @@
+import { IsString } from "class-validator";
+
 export class LikeDto {
   postId: number;
 }
 
 export class AddCommentDto {
-  postId: number;
+  @IsString()
   content: string;
 }
 
@@ -12,6 +14,7 @@ export class DeleteCommentDto {
 }
 
 export class EditCommentDto {
+  @IsString()
   content: string;
 }
 

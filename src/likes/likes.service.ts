@@ -2,19 +2,25 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   LikeDto
 } from './dto/create.dto';
+import { UserService } from 'src/user/user.service';
+import { PostsService } from 'src/posts/posts.service';
 
 @Injectable()
 export class LiklesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => PostsService))
+    private postsService: PostsService,
+  ) {}
 
-  async showLikes(data: LikeDto) {
-    const { postId } = data;
-
+  async showLikes(postId: number) {
     const likes = await this.prisma.like.findMany({ where: { postId } });
 
     return {
@@ -25,6 +31,7 @@ export class LiklesService {
 
   async like(postId: number, token_data) {
     const userId = token_data.id;
+    await this.postsService.findOne(postId, token_data);
 
     const exist = await this.prisma.like.findFirst({
       where: { userId, postId },
@@ -52,5 +59,9 @@ export class LiklesService {
       statusCode: 204,
       message: 'Like deleted successfully',
     };
+  }
+
+  async deleteInPost(postId: number) {
+    await this.prisma.like.deleteMany({ where: { postId: postId } });
   }
 }
