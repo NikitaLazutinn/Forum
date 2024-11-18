@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
+import { CreateActionDto } from './dto/create-statistc.dto';
 
 @Injectable()
 export class StatisticsService {
@@ -10,13 +11,11 @@ export class StatisticsService {
   ) {}
 
   async fetchStatistics(
-    userId: number,
-    startDate: Date,
-    endDate: Date,
-    entity: string,
-    partition: string,
+    data,
     token_data: string,
   ) {
+
+    const { userId, startDate, endDate, entity, partition } = data;
     if (token_data['roleId'] !== 1 && token_data['id'] !== userId) {
       throw new NotFoundException();
     }
@@ -24,47 +23,36 @@ export class StatisticsService {
     await this.userService.findById(userId);
 
     if(entity === 'all'){
-      const statistics = await this.aggregateAllStatistics(
+
+      try {
+        const statistics = await this.aggregateAllStatistics(
+          userId,
+          startDate,
+          endDate,
+          partition,
+        );
+
+        return statistics;
+      } catch (e) {
+        throw new BadRequestException('wrong request data!');
+      }
+
+    }
+    
+    try{
+      const statistics = await this.aggregateStatistics(
         userId,
+        entity,
         startDate,
         endDate,
         partition,
       );
 
       return statistics;
+
+    }catch(e){
+      throw new BadRequestException('wrong request data!');
     }
-
-    const statistics = await this.aggregateStatistics(
-      userId,
-      entity,
-      startDate,
-      endDate,
-      partition,
-    );
-
-    return statistics;
-  }
-
-  private calculateDateRange(interval: string) {
-    const currentDate = new Date();
-    let startDate: Date;
-    let endDate: Date = currentDate;
-
-    switch (interval) {
-      case 'day':
-        startDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
-        break;
-      case 'month':
-        startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
-        break;
-      case 'half-year':
-        startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
-        break;
-      default:
-        throw new Error('Invalid interval');
-    }
-
-    return { startDate, endDate };
   }
 
   private async aggregateStatistics(

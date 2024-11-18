@@ -21,11 +21,6 @@ import { AuthGuard } from 'src/guards';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('create')
-  async create(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.create(createUserDto);
-  }
-
   @Get('all')
   async findAll() {
     return this.userService.findAll();

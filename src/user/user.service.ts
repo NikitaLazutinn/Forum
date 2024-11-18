@@ -164,6 +164,7 @@ export class UserService {
   }
 
   async admin(id: number, token_data) {
+    let role = 0;
     if (token_data['roleId'] !== 1) {
       throw new NotFoundException();
     }
@@ -177,16 +178,17 @@ export class UserService {
         `There is no user with id: ${id}`,
       );
     }
+    user.roleId === 0?role = 1 : 0;
     await this.prisma.user.update({
       where: { id: id },
       data: {
-        roleId: 1,
+        roleId: role,
       },
     });
 
     return {
       statusCode: 201,
-      message: 'Admin role gived successfully',
+      message: 'Admin role updated successfully',
     };
   }
 }

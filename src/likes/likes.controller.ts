@@ -7,9 +7,9 @@ import { AuthGuard } from 'src/guards';
 export class LiklesController {
   constructor(private readonly liklesService: LiklesService) {}
 
-  @Get('show_likes')
-  async all_likes(@Query() likeDto: LikeDto) {
-    return this.liklesService.showLikes(likeDto);
+  @Get('show_likes/:id')
+  async all_likes(@Param('id') id: number) {
+    return this.liklesService.showLikes(+id);
   }
 
   @UseGuards(AuthGuard)

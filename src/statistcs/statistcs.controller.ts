@@ -9,6 +9,7 @@ import {
 import { StatisticsService } from './statistcs.service';
 import { Request } from 'express';
 import { AuthGuard } from 'src/guards';
+import { CreateActionDto } from './dto/create-statistc.dto';
 
 @Controller('statistics')
 export class StatisticsController {
@@ -17,34 +18,29 @@ export class StatisticsController {
   @Get()
   @UseGuards(AuthGuard)
   async getStatistics(
-    @Query('userId') userId: number,
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-    @Query('entity') entity: string,
-    @Query('partition') partition: string,
+    @Query() query: CreateActionDto,
     @Req() request,
   ) {
-    const date1 = new Date(Date.parse(startDate + 'T00:00:00.560Z'));
-    const date2 = new Date(Date.parse(endDate + 'T00:00:00.560Z'));
+    let { userId, startDate, endDate, entity, partition } = query;
+    startDate = new Date(Date.parse(startDate + 'T00:00:00.560Z'));
+    endDate = new Date(Date.parse(endDate + 'T00:00:00.560Z'));
     const token_data = request.user;
 
-    const effectiveUserId = userId || token_data.id;
+    userId ? 0 : (userId = token_data.id);
+    userId = +userId;
 
     if (!(startDate && endDate) && !entity) {
       throw new BadRequestException('Interval and entity type are required');
     }
+    const data = { userId, startDate, endDate, entity, partition };
 
     const statistics = await this.statisticsService.fetchStatistics(
-      +effectiveUserId,
-      date1,
-      date2,
-      entity,
-      partition,
+      data,
       token_data,
     );
 
     return {
-      userId: effectiveUserId,
+      userId,
       startDate,
       endDate,
       entity,

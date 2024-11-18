@@ -1,14 +1,14 @@
 import { select } from './../constants/post.constants';
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
-  LikeDto,
   CreatePostDto,
-  DeletePostDto,
   UpdatePostDto
 } from './dto/create-post.dto';
 import { plainToClass } from 'class-transformer';
@@ -16,16 +16,18 @@ import { validate } from 'class-validator';
 import { CategoriesService } from 'src/categories/categories.service';
 import { PostFilterDto } from './dto/filter.dto';
 import { CommentService } from 'src/comments/comments.service';
-import { ShowCommentDto,AddCommentDto,DeleteCommentDto,EditCommentDto} from './dto/comment_dto';
 import { LiklesService } from 'src/likes/likes.service';
+
 
 @Injectable()
 export class PostsService {
   constructor(
-    private readonly prisma: PrismaService,
-    private categoriesService: CategoriesService,
-    private commentService: CommentService,
-    private liklesService: LiklesService,
+    private readonly prisma: PrismaService, 
+    private readonly categoriesService: CategoriesService, 
+    @Inject(forwardRef(() => CommentService))
+    private readonly commentService: CommentService, 
+    @Inject(forwardRef(() => LiklesService))
+    private readonly liklesService: LiklesService, 
   ) {}
 
   async checkData(dto, data) {
@@ -38,7 +40,7 @@ export class PostsService {
   }
 
   async create(createPostDto: CreatePostDto, token_data) {
-    this.checkData(CreatePostDto, createPostDto);
+    await this.checkData(CreatePostDto, createPostDto);
 
     await this.categoriesService.ifAvailable(createPostDto.categoriesId);
 
@@ -120,16 +122,14 @@ export class PostsService {
 
   async update(id: number, updatePostDto: UpdatePostDto, token_data) {
     await this.checkData(UpdatePostDto, updatePostDto);
-    await this.categoriesService.ifAvailable(updatePostDto.params.categoriesId);
-    const params = updatePostDto.params;
+    await this.categoriesService.ifAvailable(updatePostDto.categoriesId);
+    const params = updatePostDto;
 
     const post = await this.prisma.post.findUnique({
       where: { id: id },
     });
     if (post === null) {
-      throw new NotFoundException(
-        `There is no post with id: ${id}`,
-      );
+      throw new NotFoundException(`There is no post with id: ${id}`);
     }
     if (token_data['roleId'] !== 1 && token_data['id'] !== post.userId) {
       throw new NotFoundException();
@@ -160,10 +160,7 @@ export class PostsService {
       },
     });
 
-    await this.categoriesService.UpdateInPost(
-      id,
-      updatePostDto.params.categoriesId,
-    );
+    await this.categoriesService.UpdateInPost(id, updatePostDto.categoriesId);
 
     return {
       statusCode: 201,
@@ -171,20 +168,20 @@ export class PostsService {
     };
   }
 
-  async remove(id:number, token_data) {
+  async remove(id: number, token_data) {
     const post = await this.prisma.post.findUnique({
       where: { id: id },
     });
     if (post === null) {
-      throw new NotFoundException(
-        `There is no post with id: ${id}`,
-      );
+      throw new NotFoundException(`There is no post with id: ${id}`);
     }
     if (token_data['roleId'] !== 1 && token_data['id'] !== post.userId) {
       throw new NotFoundException();
     }
 
     await this.categoriesService.DeleteInPost(id);
+    await this.commentService.deleteInPost(id);
+    await this.liklesService.deleteInPost(id);
     await this.prisma.post.delete({ where: { id: id } });
 
     return {
@@ -194,7 +191,8 @@ export class PostsService {
   }
 
   async filterAndSortPosts(filterDto: PostFilterDto, token_data) {
-    const {
+    await this.checkData(PostFilterDto, filterDto);
+    let {
       title,
       published,
       content,
@@ -281,6 +279,5 @@ export class PostsService {
       select,
     });
   }
-
 }
 

@@ -1,12 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-//import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 //import { randomBytes } from 'crypto';
 
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true, // Увімкнення автоматичної трансформації
+      }),
+    );
   //app.useGlobalPipes(new ValidationPipe());
 
   // const config = new DocumentBuilder()
