@@ -1,8 +1,11 @@
 export const select = {
+  id:true,
   title: true,
   content: true,
   createdAt: true,
   updatedAt: true,
+  image: true,
+  deleteHash:true,
   author: {
     select: {
       id: true,

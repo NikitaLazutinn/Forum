@@ -7,10 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  CreatePostDto,
-  UpdatePostDto
-} from './dto/create-post.dto';
+import { CreatePostDto, UpdatePostDto } from './dto/create-post.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CategoriesService } from 'src/categories/categories.service';
@@ -18,16 +15,15 @@ import { PostFilterDto } from './dto/filter.dto';
 import { CommentService } from 'src/comments/comments.service';
 import { LiklesService } from 'src/likes/likes.service';
 
-
 @Injectable()
 export class PostsService {
   constructor(
-    private readonly prisma: PrismaService, 
-    private readonly categoriesService: CategoriesService, 
+    private readonly prisma: PrismaService,
+    private readonly categoriesService: CategoriesService,
     @Inject(forwardRef(() => CommentService))
-    private readonly commentService: CommentService, 
+    private readonly commentService: CommentService,
     @Inject(forwardRef(() => LiklesService))
-    private readonly liklesService: LiklesService, 
+    private readonly liklesService: LiklesService,
   ) {}
 
   async checkData(dto, data) {
@@ -279,5 +275,18 @@ export class PostsService {
       select,
     });
   }
-}
 
+  async uploadImage(postId: number, imageUrl: string, deleteHash: string) {
+    return this.prisma.post.update({
+      where: { id: postId },
+      data: { image: imageUrl, deleteHash: deleteHash },
+    });
+  }
+
+  async deleteImage(postId: number) {
+    return this.prisma.post.update({
+      where: { id: postId },
+      data: { image: null, deleteHash: null },
+    });
+  }
+}

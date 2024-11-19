@@ -7,6 +7,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
 import { StatistcsModule } from './statistcs/statistcs.module';
+import { ImgurModule } from './imgur/imgur.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { StatistcsModule } from './statistcs/statistcs.module';
     CommentsModule,
     LikesModule,
     StatistcsModule,
+    ImgurModule,
   ],
 })
 export class AppModule {}
