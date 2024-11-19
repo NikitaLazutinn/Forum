@@ -3,10 +3,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  Delete_UserDto,
-  Update_UserDto,
-} from './dto/create-user.dto';
+import { Delete_UserDto, Update_UserDto } from './dto/create-user.dto';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
@@ -64,6 +61,8 @@ export class UserService {
         email: true,
         createdAt: true,
         lastLoggedIn: true,
+        profilePhoto: true,
+        deleteHash: true,
       },
     });
     if (user === null) {
@@ -93,7 +92,7 @@ export class UserService {
     };
   }
 
-  async update_user(id:number, UpdateUserDto: Update_UserDto, token_data) {
+  async update_user(id: number, UpdateUserDto: Update_UserDto, token_data) {
     await this.checkData(Update_UserDto, UpdateUserDto);
     const params = UpdateUserDto;
     if (token_data['roleId'] !== 1 && token_data['id'] !== id) {
@@ -104,9 +103,7 @@ export class UserService {
       where: { id: id },
     });
     if (user === null) {
-      throw new NotFoundException(
-        `There is no user with id: ${id}`,
-      );
+      throw new NotFoundException(`There is no user with id: ${id}`);
     }
 
     if (params.email.length > 0) {
@@ -142,7 +139,7 @@ export class UserService {
     };
   }
 
-  async remove(id:number, token_data) {
+  async remove(id: number, token_data) {
     if (token_data['roleId'] !== 1 && token_data['id'] !== id) {
       throw new NotFoundException();
     }
@@ -151,9 +148,7 @@ export class UserService {
       where: { id: id },
     });
     if (user === null) {
-      throw new NotFoundException(
-        `There is no user with id: ${id}`,
-      );
+      throw new NotFoundException(`There is no user with id: ${id}`);
     }
     await this.prisma.user.delete({ where: { id: id } });
 
@@ -174,11 +169,9 @@ export class UserService {
     });
 
     if (user === null) {
-      throw new NotFoundException(
-        `There is no user with id: ${id}`,
-      );
+      throw new NotFoundException(`There is no user with id: ${id}`);
     }
-    user.roleId === 0?role = 1 : 0;
+    user.roleId === 0 ? (role = 1) : 0;
     await this.prisma.user.update({
       where: { id: id },
       data: {
@@ -190,5 +183,34 @@ export class UserService {
       statusCode: 201,
       message: 'Admin role updated successfully',
     };
+  }
+
+  async uploadProfilePhoto(
+    userId: number,
+    imageUrl: string,
+    deleteHash: string,
+  ) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { profilePhoto: imageUrl, deleteHash: deleteHash },
+    });
+  }
+
+  async deleteProfilePhoto(userId: number) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { profilePhoto: null, deleteHash: null },
+    });
+  }
+
+  async updateProfilePhoto(
+    userId: number,
+    imageUrl: string,
+    deleteHash: string,
+  ) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { profilePhoto: imageUrl, deleteHash: deleteHash },
+    });
   }
 }
