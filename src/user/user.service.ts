@@ -106,32 +106,26 @@ export class UserService {
       throw new NotFoundException(`There is no user with id: ${id}`);
     }
 
-    if (params.email.length > 0) {
-      await this.prisma.user.update({
-        where: { id: id },
-        data: {
-          email: params.email,
-        },
-      });
-    }
+  const updateData: { email?: string; name?: string; password?: string } = {};
 
-    if (params.name.length > 0) {
-      await this.prisma.user.update({
-        where: { id: id },
-        data: {
-          name: params.name,
-        },
-      });
-    }
+  if (params.email?.length > 0) {
+    updateData.email = params.email;
+  }
 
-    if (params.password.length > 0) {
-      await this.prisma.user.update({
-        where: { id: id },
-        data: {
-          password: params.password,
-        },
-      });
-    }
+  if (params.name?.length > 0) {
+    updateData.name = params.name;
+  }
+
+  if (params.password?.length > 0) {
+    updateData.password = params.password;
+  }
+
+  if (Object.keys(updateData).length > 0) {
+    await this.prisma.user.update({
+      where: { id: id },
+      data: updateData,
+    });
+  }
 
     return {
       statusCode: 201,
