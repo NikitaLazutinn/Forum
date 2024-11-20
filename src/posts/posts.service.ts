@@ -14,6 +14,8 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { PostFilterDto } from './dto/filter.dto';
 import { CommentService } from 'src/comments/comments.service';
 import { LiklesService } from 'src/likes/likes.service';
+import { ViewsService } from 'src/PostViews/Views.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PostsService {
@@ -24,6 +26,8 @@ export class PostsService {
     private readonly commentService: CommentService,
     @Inject(forwardRef(() => LiklesService))
     private readonly liklesService: LiklesService,
+    @Inject(forwardRef(() => ViewsService))
+    private readonly viewsService: ViewsService,
   ) {}
 
   async checkData(dto, data) {
@@ -96,7 +100,7 @@ export class PostsService {
     }
   }
 
-  async findOne(id: number, token_data) {
+  async findById(id: number, token_data: string) {
     let whereCondition: any = { id: id };
     if (token_data['roleId'] === 0) {
       whereCondition.published = true;
@@ -104,15 +108,30 @@ export class PostsService {
 
     const post = await this.prisma.post.findUnique({
       where: whereCondition,
-      select: select,
     });
+    return post;
+  }
 
+  async findOne(id: number, token_data) {
+    const post = await this.findById(id, token_data);
     if (post === null) {
       throw new NotFoundException(`There is no post with id: ${id}`);
     }
+
+    const viewCount = await this.viewsService.count(token_data['id'], post);
+
     return {
       statusCode: 200,
-      post: post,
+      post: {
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        image: post.image,
+        author: post.userId,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+        views: viewCount,
+      },
     };
   }
 

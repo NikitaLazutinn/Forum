@@ -6,6 +6,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { LikesModule } from 'src/likes/likes.module';
+import { ViewsModule } from 'src/PostViews/Views.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LikesModule } from 'src/likes/likes.module';
     forwardRef(() => CommentsModule),
     forwardRef(() => CategoriesModule),
     forwardRef(() => LikesModule),
+    forwardRef(() => ViewsModule),
   ],
   controllers: [PostsController],
   providers: [PostsService],
