@@ -131,29 +131,20 @@ export class PostsService {
       throw new NotFoundException();
     }
 
-    if (params.title.length > 0) {
-      await this.prisma.post.update({
-        where: { id: id },
-        data: {
-          title: params.title,
-        },
-      });
-    }
+  const updateData: { title?: string; content?: string; published: boolean } =
+    {published: params.published};
 
-    if (params.content.length > 0) {
-      await this.prisma.post.update({
-        where: { id: id },
-        data: {
-          content: params.content,
-        },
-      });
-    }
+  if (params.title?.length > 0) {
+    updateData.title = params.title;
+  }
+
+  if (params.content?.length > 0) {
+    updateData.content = params.content;
+  }
 
     await this.prisma.post.update({
       where: { id: id },
-      data: {
-        published: params.published,
-      },
+      data: updateData,
     });
 
     await this.categoriesService.UpdateInPost(id, updatePostDto.categoriesId);
