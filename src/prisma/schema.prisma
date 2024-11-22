@@ -33,6 +33,7 @@ model User {
   lastLoggedIn DateTime  @default(now())
   posts        Post[]    @relation
   likes        Like[]    @relation
+  views        Views[]   @relation
   comments     comment[] @relation
   actions  UserActionLog[]
 }
@@ -46,11 +47,22 @@ model Post {
   deleteHash String?     
   likes      Like[]     @relation("PostLikes")
   comments   comment[]  @relation("PostComments")
+  views      Views[]    @relation
   userId   Int
   author     User       @relation(fields: [userId], references: [id])
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @default(now())
   categories CategoriesOnPosts[]  
+}
+
+model Views {
+  id Int      @id @default(autoincrement())
+  postId    Int     @unique
+  userId    Int     @unique
+  viewedAt  DateTime @default(now())
+
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model category {

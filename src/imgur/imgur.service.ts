@@ -43,14 +43,14 @@ export class ImgurService {
   }
 
   async addPostImage(postId: number, file, token_data: string) {
-    const post = await this.postsService.findOne(postId, token_data);
+    const post = await this.postsService.findById(postId, token_data);
 
     const userId = token_data['id'];
-    if (token_data['roleId'] !== 1 && userId !== post.post.author.id) {
+    if (token_data['roleId'] !== 1 && userId !== post.userId) {
       throw new NotFoundException();
     }
 
-    if (post.post.image) {
+    if (post.image) {
       throw new BadRequestException('Image already exists here!');
     }
 
@@ -61,15 +61,15 @@ export class ImgurService {
   }
 
   async updatePostImage(postId: number, file, token_data: string) {
-    const post = await this.postsService.findOne(postId, token_data);
+    const post = await this.postsService.findById(postId, token_data);
 
     const userId = token_data['id'];
-    if (token_data['roleId'] !== 1 && userId !== post.post.author.id) {
+    if (token_data['roleId'] !== 1 && userId !== post.userId) {
       throw new NotFoundException();
     }
 
-    if (post.post.image && post.post.deleteHash) {
-      await this.deleteImageFromImgur(post.post.deleteHash);
+    if (post.image && post.deleteHash) {
+      await this.deleteImageFromImgur(post.deleteHash);
     }
 
     const { link: imageUrl, deletehash } = await this.uploadToImgur(file);
@@ -79,19 +79,19 @@ export class ImgurService {
   }
 
   async deletePostImage(postId: number, token_data: string) {
-    const post = await this.postsService.findOne(postId, token_data);
+    const post = await this.postsService.findById(postId, token_data);
 
     const userId = token_data['id'];
-    if (token_data['roleId'] !== 1 && userId !== post.post.author.id) {
+    if (token_data['roleId'] !== 1 && userId !== post.userId) {
       throw new NotFoundException();
     }
 
-    if (!post.post.image || !post.post.deleteHash) {
+    if (!post.image || !post.deleteHash) {
       throw new BadRequestException('There is no image to delete!');
     }
 
-    await this.deleteImageFromImgur(post.post.deleteHash);
-    await this.postsService.deleteImage(post.post.id);
+    await this.deleteImageFromImgur(post.deleteHash);
+    await this.postsService.deleteImage(post.id);
 
     return { message: 'Post image has been deleted successfully!' };
   }
