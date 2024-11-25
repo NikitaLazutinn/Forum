@@ -1,15 +1,9 @@
 import {
   Injectable,
-  BadRequestException,
-  NotFoundException,
   Inject,
   forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  LikeDto
-} from './dto/create.dto';
-import { UserService } from 'src/user/user.service';
 import { PostsService } from 'src/posts/posts.service';
 
 @Injectable()

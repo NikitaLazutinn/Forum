@@ -9,14 +9,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, RegisterResponseDto } from './dto/RegisterDto';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-import {bcrypt} from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { logInDto, logInResponceDto } from './dto/logInDto';
 import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
 import { linkResetResp, ResetDto } from './dto/resetDto';
-import { OAuth2Client } from 'google-auth-library';
-import * as jwt from 'jsonwebtoken';
-import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -132,10 +129,10 @@ export class AuthService {
       if (existingUser === null) {
         throw new NotFoundException('No such user registered');
       }
-
       const isMatch = await bcrypt.compare(
         data.password,
         existingUser.password,
+      
       );
 
       if (!isMatch) {

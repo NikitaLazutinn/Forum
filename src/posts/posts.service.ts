@@ -15,7 +15,6 @@ import { PostFilterDto } from './dto/filter.dto';
 import { CommentService } from 'src/comments/comments.service';
 import { LiklesService } from 'src/likes/likes.service';
 import { ViewsService } from 'src/PostViews/Views.service';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PostsService {
