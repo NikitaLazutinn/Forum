@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, RegisterResponseDto } from './dto/RegisterDto';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-import * as bcrypt from 'bcrypt';
+import {bcrypt} from 'bcryptjs';
 import { logInDto, logInResponceDto } from './dto/logInDto';
 import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
