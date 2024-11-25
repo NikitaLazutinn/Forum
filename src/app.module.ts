@@ -9,6 +9,7 @@ import { LikesModule } from './likes/likes.module';
 import { StatistcsModule } from './statistcs/statistcs.module';
 import { ImgurModule } from './imgur/imgur.module';
 import { ViewsModule } from './PostViews/Views.module';
+import { FollowersModule } from './followers/followers.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { ViewsModule } from './PostViews/Views.module';
     LikesModule,
     StatistcsModule,
     ImgurModule,
-    ViewsModule
+    ViewsModule,
+    FollowersModule
   ],
 })
 export class AppModule {}

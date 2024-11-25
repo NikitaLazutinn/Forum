@@ -2,15 +2,22 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { Delete_UserDto, Update_UserDto } from './dto/create-user.dto';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
+import { FollowersService } from 'src/followers/followers.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => FollowersService))
+    private readonly followersService: FollowersService,
+  ) {}
 
   async checkData(dto, data) {
     const registerDto = plainToClass(dto, data);
@@ -106,26 +113,26 @@ export class UserService {
       throw new NotFoundException(`There is no user with id: ${id}`);
     }
 
-  const updateData: { email?: string; name?: string; password?: string } = {};
+    const updateData: { email?: string; name?: string; password?: string } = {};
 
-  if (params.email?.length > 0) {
-    updateData.email = params.email;
-  }
+    if (params.email?.length > 0) {
+      updateData.email = params.email;
+    }
 
-  if (params.name?.length > 0) {
-    updateData.name = params.name;
-  }
+    if (params.name?.length > 0) {
+      updateData.name = params.name;
+    }
 
-  if (params.password?.length > 0) {
-    updateData.password = params.password;
-  }
+    if (params.password?.length > 0) {
+      updateData.password = params.password;
+    }
 
-  if (Object.keys(updateData).length > 0) {
-    await this.prisma.user.update({
-      where: { id: id },
-      data: updateData,
-    });
-  }
+    if (Object.keys(updateData).length > 0) {
+      await this.prisma.user.update({
+        where: { id: id },
+        data: updateData,
+      });
+    }
 
     return {
       statusCode: 201,
@@ -144,6 +151,7 @@ export class UserService {
     if (user === null) {
       throw new NotFoundException(`There is no user with id: ${id}`);
     }
+    await this.followersService.deleteInUser(id);
     await this.prisma.user.delete({ where: { id: id } });
 
     return {
