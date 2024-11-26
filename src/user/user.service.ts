@@ -59,8 +59,18 @@ export class UserService {
     }
   }
 
-  async findById(id: number) {
+  async find(id: number) {
     const user = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+    if (user === null) {
+      throw new NotFoundException(`There is no user with id: ${id}`);
+    }
+    return user;
+  }
+
+  async findById(id: number) {
+    let user = await this.prisma.user.findUnique({
       where: { id: id },
       select: {
         id: true,
@@ -69,15 +79,38 @@ export class UserService {
         createdAt: true,
         lastLoggedIn: true,
         profilePhoto: true,
-        deleteHash: true,
+        posts: true,
       },
     });
     if (user === null) {
       throw new NotFoundException(`There is no user with id: ${id}`);
     }
+    const followers = (await this.followersService.showFollowers(id)).count;
+    const following = (await this.followersService.folowing(id)).count;
+
     return {
       statusCode: 200,
-      user: user,
+      user: { ...user, followers: followers, following: following },
+    };
+  }
+
+  async followers(id: number) {
+    await this.find(id);
+
+    const followers = (await this.followersService.showFollowers(id)).followers;
+    return {
+      statusCode: 200,
+      followers: followers,
+    };
+  }
+
+  async follwing(id: number) {
+    await this.find(id);
+
+    const follwing = (await this.followersService.folowing(id)).following;
+    return {
+      statusCode: 200,
+      follwing: follwing,
     };
   }
 

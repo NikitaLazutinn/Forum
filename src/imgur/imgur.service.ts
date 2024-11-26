@@ -99,9 +99,9 @@ export class ImgurService {
   async addProfilePhoto(file, token_data: string) {
     const userId = token_data['id'];
 
-    const user = await this.userService.findById(userId);
+    const user = await this.userService.find(userId);
 
-    if (user.user.profilePhoto) {
+    if (user.profilePhoto) {
       throw new BadRequestException('Profile photo already exists');
     }
 
@@ -120,13 +120,13 @@ export class ImgurService {
   async changeProfilePhoto(file, token_data: string) {
     const userId = token_data['id'];
 
-    const user = await this.userService.findById(userId);
+    const user = await this.userService.find(userId);
 
-    if (!user.user.profilePhoto) {
+    if (!user.profilePhoto) {
       throw new BadRequestException('Profile photo doesn`t exist');
     }
 
-    await this.deleteImageFromImgur(user.user.deleteHash);
+    await this.deleteImageFromImgur(user.deleteHash);
 
     const { link: uploadedImageUrl, deletehash } =
       await this.uploadToImgur(file);
@@ -143,13 +143,13 @@ export class ImgurService {
   async deleteProfilePhoto(token_data: string) {
     const userId = token_data['id'];
 
-    const user = await this.userService.findById(userId);
+    const user = await this.userService.find(userId);
 
-    if (!user.user.profilePhoto) {
+    if (!user.profilePhoto) {
       throw new BadRequestException('Profile photo doesn`t exist');
     }
 
-    await this.deleteImageFromImgur(user.user.deleteHash);
+    await this.deleteImageFromImgur(user.deleteHash);
 
     await this.userService.deleteProfilePhoto(userId);
 

@@ -11,21 +11,52 @@ export class FollowersService {
   ) {}
 
   async showFollowers(userId: number) {
-    const followers = await this.prisma.followers.findMany({
-      where: { userId: userId },
-      select: {
-        hisfollower: { select: { id: true, name: true } },
-        followedAt: true,
-      },
-    });
+    let followers = {};
+
     const count = await this.prisma.followers.count({
       where: { userId: userId },
     });
+
+    if(count > 0){
+      followers = await this.prisma.followers.findMany({
+        where: { userId: userId },
+        select: {
+          hisfollower: { select: { id: true, name: true } },
+          followedAt: true,
+        },
+      });
+    }
+
 
     return {
       statusCode: 200,
       count: count,
       followers: followers,
+    };
+  }
+
+  async folowing(userId: number) {
+    let following = {};
+    
+    const count = await this.prisma.followers.count({
+      where: { followerId: userId },
+    });
+
+    if(count > 0){
+      following = await this.prisma.followers.findMany({
+        where: { followerId: userId },
+        select: {
+          user: { select: { id: true, name: true } },
+          followedAt: true,
+        },
+      });
+    }
+
+
+    return {
+      statusCode: 200,
+      count: count,
+      following: following,
     };
   }
 
@@ -35,7 +66,7 @@ export class FollowersService {
     if (followerId === userId) {
       throw new BadRequestException('You cant follow at yourself');
     }
-    await this.userService.findById(userId);
+    await this.userService.find(userId);
 
     const exist = await this.prisma.followers.findFirst({
       where: { userId, followerId },
