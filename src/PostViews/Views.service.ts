@@ -13,7 +13,7 @@ export class ViewsService {
   ) {}
 
   async count(userId: string, post: Post) {
-    const { user } = await this.userService.findById(+userId);
+    const user = await this.userService.find(+userId);
     const isAuthor = post.userId === user.id;
     const isArchived = !post.published;
 

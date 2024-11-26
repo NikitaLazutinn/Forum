@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -11,8 +10,6 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
-  CreateUserDto,
-  Delete_UserDto,
   Update_UserDto,
 } from './dto/create-user.dto';
 import { AuthGuard } from 'src/guards';
@@ -29,6 +26,16 @@ export class UserController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.userService.findById(+id);
+  }
+
+  @Get('followers/:id')
+  async userFollowers(@Param('id') id: string) {
+    return this.userService.followers(+id);
+  }
+
+  @Get('following/:id')
+  async userFollowing(@Param('id') id: string) {
+    return this.userService.follwing(+id);
   }
 
   @UseGuards(AuthGuard)
@@ -51,10 +58,7 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Patch('adminStatus/:id')
-  async adminStatus(
-    @Param('id') id: number,
-    @Req() request,
-  ) {
+  async adminStatus(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;
     return this.userService.admin(+id, tokenData);
   }

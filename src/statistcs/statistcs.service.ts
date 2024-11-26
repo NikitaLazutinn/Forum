@@ -20,7 +20,7 @@ export class StatisticsService {
       throw new NotFoundException();
     }
 
-    await this.userService.findById(userId);
+    await this.userService.find(userId);
 
     if(entity === 'all'){
 
