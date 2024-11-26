@@ -36,6 +36,8 @@ model User {
   likes        Like[]    @relation
   views        Views[]   @relation
   comments     comment[] @relation
+  followers    Followers[] @relation("hisfollower")
+  user    Followers[] @relation("user")
   actions  UserActionLog[]
 }
 
@@ -92,6 +94,15 @@ model Like {
   createdAt DateTime @default(now())
   post      Post     @relation("PostLikes", fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model Followers {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  followerId    Int
+  followedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], name: "user")
+  hisfollower   User     @relation(fields: [followerId], references: [id], name: "hisfollower")
 }
 
 model comment {
