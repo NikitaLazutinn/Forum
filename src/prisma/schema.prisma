@@ -62,7 +62,7 @@ model Views {
   id Int      @id @default(autoincrement())
   postId    Int     @unique
   userId    Int     @unique
-  viewedAt  DateTime @default(now())
+  createdAt  DateTime   @default(now())
 
   post      Post     @relation(fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
@@ -100,7 +100,7 @@ model Followers {
   id        Int      @id @default(autoincrement())
   userId    Int
   followerId    Int
-  followedAt DateTime @default(now())
+  createdAt  DateTime   @default(now())
   user       User     @relation(fields: [userId], references: [id], name: "user")
   hisfollower   User     @relation(fields: [followerId], references: [id], name: "hisfollower")
 }

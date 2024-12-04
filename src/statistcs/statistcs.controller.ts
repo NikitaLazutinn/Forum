@@ -40,12 +40,7 @@ export class StatisticsController {
     );
 
     return {
-      userId,
-      startDate,
-      endDate,
-      entity,
-      partition,
-      statistics,
+      statistics
     };
   }
 }
