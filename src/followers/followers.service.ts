@@ -22,7 +22,7 @@ export class FollowersService {
         where: { userId: userId },
         select: {
           hisfollower: { select: { id: true, name: true } },
-          followedAt: true,
+          createdAt: true,
         },
       });
     }
@@ -47,7 +47,7 @@ export class FollowersService {
         where: { followerId: userId },
         select: {
           user: { select: { id: true, name: true } },
-          followedAt: true,
+          createdAt: true,
         },
       });
     }
