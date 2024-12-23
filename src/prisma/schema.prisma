@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id    Int    @id
+  name  String @unique
+  discription String
+  users User[]
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  roleId       Int       @default(0)
+  role         Role      @relation(fields: [roleId], references: [id])
+  email        String    @unique
+  profilePhoto String?
+  deleteHash   String?  
+  name         String
+  password     String
+  createdAt    DateTime  @default(now())
+  lastLoggedIn DateTime  @default(now())
+  posts        Post[]    @relation
+  likes        Like[]    @relation
+  views        Views[]   @relation
+  comments     comment[] @relation
+  followers    Followers[] @relation("hisfollower")
+  user    Followers[] @relation("user")
+  actions  UserActionLog[]
+}
+
+model Post {
+  id         Int        @id @default(autoincrement())
+  title      String
+  content    String?
+  published  Boolean    @default(false)
+  image      String? 
+  deleteHash String?     
+  likes      Like[]     @relation("PostLikes")
+  comments   comment[]  @relation("PostComments")
+  views      Views[]    @relation
+  userId   Int
+  author     User       @relation(fields: [userId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now())
+  categories CategoriesOnPosts[]  
+}
+
+model Views {
+  id Int      @id @default(autoincrement())
+  postId    Int     @unique
+  userId    Int     @unique
+  createdAt  DateTime   @default(now())
+
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  posts       CategoriesOnPosts[]  
+}
+
+
+model CategoriesOnPosts {
+  postId     Int
+  categoryId Int
+  post       Post     @relation(fields: [postId], references: [id])
+  category   category @relation(fields: [categoryId], references: [id])
+
+  @@id([postId, categoryId])
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  createdAt DateTime @default(now())
+  post      Post     @relation("PostLikes", fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Followers {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  followerId    Int
+  createdAt  DateTime   @default(now())
+  user       User     @relation(fields: [userId], references: [id], name: "user")
+  hisfollower   User     @relation(fields: [followerId], references: [id], name: "hisfollower")
+}
+
+model comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  postId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  post      Post     @relation("PostComments", fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserActionLog {
+  id            Int      @id @default(autoincrement())
+  action        String
+  userId        Int
+  entityType    String
+  entityId      Int
+  entity        Json
+  operationTime DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
+}
