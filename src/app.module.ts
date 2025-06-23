@@ -10,9 +10,13 @@ import { StatistcsModule } from './statistcs/statistcs.module';
 import { ImgurModule } from './imgur/imgur.module';
 import { ViewsModule } from './PostViews/Views.module';
 import { FollowersModule } from './followers/followers.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
     AuthModule,
     PrismaModule,
     UserModule,

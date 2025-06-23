@@ -184,7 +184,7 @@ export class AuthService {
     }
 
     const token = this.jwtService.sign({ id: user.id }, { expiresIn: '1h' });
-    const link = process.env.LINK;
+    const link = process.env.LINK_FRONTEND;
     const resetLink = `${link}/auth/reset-password?token=${token}`;
 
     const transporter = nodemailer.createTransport({

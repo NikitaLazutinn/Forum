@@ -11,6 +11,7 @@ async function bootstrap() {
         transform: true, // Увімкнення автоматичної трансформації
       }),
     );
+    app.enableCors(); 
   //app.useGlobalPipes(new ValidationPipe());
 
   // const config = new DocumentBuilder()
