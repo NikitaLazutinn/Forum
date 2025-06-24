@@ -49,6 +49,11 @@ export class AuthController {
     return await this.authService.resetPasswordLink(email);
   }
 
+  @Get('reset-password-checkToken')
+  async resetPasswordCheckToken(@Query('token') token: string) {
+    return this.authService.CheckToken(token);
+  }
+
   @Post('reset-password')
   async resetPassword(@Query('token') token: string, @Body() Data: ResetDto) {
     return await this.authService.resetPassword(token, Data);

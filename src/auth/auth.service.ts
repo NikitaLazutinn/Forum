@@ -214,26 +214,28 @@ export class AuthService {
     };
   }
 
-  async resetPassword(token: string, body: ResetDto): Promise<linkResetResp> {
-    await this.checkData(ResetDto, body);
-    let tokenData;
-    
+  CheckToken(token: string){
     try {
-      tokenData = this.jwtService.verify(token);
+      return this.jwtService.verify(token);
     } catch (error) {
       throw new BadRequestException('Invalid or expired token');
     }
-      const userId = tokenData.id;
+  }
 
-      if (body.password !== body.confirmPassword) {
-        throw new BadRequestException('Passwords do not match');
-      }
-      const hashedPassword: string = await this.hashPassword(body['password']);
-      const updateData = {
-        name: '',
-        email: '',
-        password: hashedPassword,
-      };
+  async resetPassword(token: string, body: ResetDto): Promise<linkResetResp> {
+    await this.checkData(ResetDto, body);
+    const tokenData = this.CheckToken(token);
+    const userId = tokenData.id;
+
+    if (body.password !== body.confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+    const hashedPassword: string = await this.hashPassword(body['password']);
+    const updateData = {
+      name: '',
+      email: '',
+      password: hashedPassword,
+    };
     return await this.user_service.update_user(userId, updateData, tokenData);
     
   }

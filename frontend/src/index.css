@@ -10,7 +10,6 @@
     line-height: 1.6;
   }
   
-  /* Centered container */
   .container {
     max-width: 400px;
     margin: 60px auto;
@@ -19,8 +18,11 @@
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
   }
+
+  .error {
+    color: red;
+  }
   
-  /* Headings */
   h2 {
     text-align: center;
     margin-bottom: 24px;

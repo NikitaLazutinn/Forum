@@ -10,3 +10,5 @@ export const resetPassword = (token, data) =>
   axios.post(`${API_URL}/auth/reset-password?token=${token}`, data);
 export const fetchTodos = token =>
   axios.get(`${API_URL}/todos`, { headers: { Authorization: `Bearer ${token}` } });
+export const validateResetToken = token =>
+  axios.get(`${API_URL}/auth/reset-password-checkToken?token=${token}`);

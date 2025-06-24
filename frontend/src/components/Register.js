@@ -5,28 +5,35 @@ import { registerUser } from '../services/api';
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) return alert('Passwords do not match');
+    setError("");
     try {
       await registerUser(form);
-      navigate('/login');
-    } catch {
-      alert('Registration failed');
+      navigate('/auth/login');
+    } catch (err) {
+      const message = err.response.data.message;
+      setError(message);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Register</h2>
-      <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
-      <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-      <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
-      <input name="confirmPassword" type="password" placeholder="Confirm Password" value={form.confirmPassword} onChange={handleChange} required />
-      <button type="submit">Register</button>
-    </form>
+    <div className="container">
+      <form onSubmit={handleSubmit}>
+        <h2>Register</h2>
+        <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
+        <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
+        <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+        <input name="confirmPassword" type="password" placeholder="Confirm Password" value={form.confirmPassword} onChange={handleChange} required />
+        {error && (
+          <p role="alert" aria-live="polite" class="error">{error}</p>
+          )}
+        <button type="submit">Register</button>
+      </form>
+    </div>
   );
 }
