@@ -12,3 +12,17 @@ export const fetchTodos = token =>
   axios.get(`${API_URL}/todos`, { headers: { Authorization: `Bearer ${token}` } });
 export const validateResetToken = token =>
   axios.get(`${API_URL}/auth/reset-password-checkToken?token=${token}`);
+export const createPost = data => {
+  const token = localStorage.getItem('token');          // ← grab it here
+  return axios.post(
+    `${API_URL}/posts/create`, 
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+};
+export const fetchCategories = () =>
+  axios.get(`${API_URL}/categories/all`);

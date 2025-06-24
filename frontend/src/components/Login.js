@@ -62,7 +62,7 @@ export default function Login() {
         Login with Google
       </button>
       <p>
-        <Link to="/forgot-password">
+        <Link to="/auth/forgot-password">
           Forgot Password?
         </Link>
       </p>
