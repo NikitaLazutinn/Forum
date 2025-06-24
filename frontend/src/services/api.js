@@ -26,3 +26,15 @@ export const createPost = data => {
 };
 export const fetchCategories = () =>
   axios.get(`${API_URL}/categories/all`);
+
+export const fetchPosts = () => {
+  const token = localStorage.getItem('token');          // ← grab it here
+  return axios.get(
+    `${API_URL}/posts/all`, 
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+};
