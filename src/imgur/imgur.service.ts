@@ -32,6 +32,8 @@ export class ImgurService {
       }
       throw new BadRequestException('Something went wrong');
     } catch (error) {
+      console.log(error.response.data);
+      
       throw new BadRequestException('Something went wrong');
     }
   }
@@ -46,8 +48,8 @@ export class ImgurService {
     const post = await this.postsService.findById(postId, token_data);
 
     const userId = token_data['id'];
-    if (token_data['roleId'] !== 1 && userId !== post.userId) {
-      throw new NotFoundException();
+    if (userId !== post.userId) {
+      throw new NotFoundException('Post not found');
     }
 
     if (post.image) {

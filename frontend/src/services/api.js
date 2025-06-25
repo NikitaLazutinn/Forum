@@ -28,7 +28,7 @@ export const fetchCategories = () =>
   axios.get(`${API_URL}/categories/all`);
 
 export const fetchPosts = () => {
-  const token = localStorage.getItem('token');          // ← grab it here
+  const token = localStorage.getItem('token');
   return axios.get(
     `${API_URL}/posts/all`, 
     {
@@ -36,5 +36,17 @@ export const fetchPosts = () => {
         Authorization: `Bearer ${token}`
       }
     }
+  );
+};
+export const addPostImage = (postId, file) => {
+  const token = localStorage.getItem('token');
+  const formData = new FormData();
+  formData.append('postImage', file);
+  return axios.post(
+    `${API_URL}/img/${postId}/add-image`,
+    formData,
+    { headers: {
+      Authorization: `Bearer ${token}`
+    } }
   );
 };

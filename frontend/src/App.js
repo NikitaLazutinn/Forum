@@ -6,6 +6,7 @@ import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import CreatePost from './components/CreatePost';
 import PostsList from './components/PostsList';
+import AddPostImage from './components/AddPostImage';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
       <Route path="/auth/reset-password" element={<ResetPassword />} />
       <Route path="/posts/create" element={<CreatePost />} />
       <Route path="/posts/all" element={<PostsList/>} />
+      <Route path="/posts/:postId/add-image" element={<AddPostImage/>} />
       <Route
         path="/"
         element={token ? <h1>Hello</h1> : <Navigate to="/auth/login" />}
