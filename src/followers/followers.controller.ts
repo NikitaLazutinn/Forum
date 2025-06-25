@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
 import { FollowersService } from './followers.service';
-import { AuthGuard } from 'src/guards';
+import { AuthGuardCustom } from 'src/guards';
 
 @Controller('followers')
 export class FollowersController {
@@ -11,7 +11,7 @@ export class FollowersController {
     return this.followersService.showFollowers(+id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch('follow/:id')
   async follow(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;

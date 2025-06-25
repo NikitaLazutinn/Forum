@@ -8,6 +8,7 @@ import CreatePost from './components/CreatePost';
 import PostsList from './components/PostsList';
 import AddPostImage from './components/AddPostImage';
 import FilterSortPosts from './components/FilterSortPosts';
+import GoogleCallback from './components/GoogleCallback';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
       <Route path="/posts/all" element={<PostsList/>} />
       <Route path="/posts/:postId/add-image" element={<AddPostImage/>} />
       <Route path="posts/filter-sort" element={<FilterSortPosts/>} />
+      <Route path="auth/googleCallback?token=${accessToken}" element={<GoogleCallback/>} />
       <Route
         path="/"
         element={<Navigate to="/posts/all" />}

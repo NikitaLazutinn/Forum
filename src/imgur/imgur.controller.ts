@@ -9,7 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/guards';
+import { AuthGuardCustom } from 'src/guards';
 import { ImgurService } from './imgur.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -17,7 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class ImgurController {
   constructor(private readonly imgurService: ImgurService) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Post('add-profile-photo')
   @UseInterceptors(FileInterceptor('profilePhoto'))
   async addProfilePhoto(
@@ -29,7 +29,7 @@ export class ImgurController {
     return this.imgurService.addProfilePhoto(file, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch('change-profile-photo')
   @UseInterceptors(FileInterceptor('profilePhoto'))
   async changeProfilePhoto(
@@ -41,14 +41,14 @@ export class ImgurController {
     return this.imgurService.changeProfilePhoto(file, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Delete('delete-profile-photo')
   async deleteProfilePhoto(@Req() request,) {
     const tokenData = request.user;
     return this.imgurService.deleteProfilePhoto(tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Post(':postId/add-image')
   @UseInterceptors(FileInterceptor('postImage'))
   async addPostImage(
@@ -60,7 +60,7 @@ export class ImgurController {
     return this.imgurService.addPostImage(+postId, file, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch(':postId/update-image')
   @UseInterceptors(FileInterceptor('postImage'))
   async updatePostImage(
@@ -72,7 +72,7 @@ export class ImgurController {
     return this.imgurService.updatePostImage(+postId, file, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Delete(':postId/delete-image')
   async deletePostImage(@Param('postId') postId: number, @Req() request) {
     const tokenData = request.user;
