@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { formatISO} from 'date-fns';
 
 const API_URL = 'http://localhost:3000';
 
@@ -49,4 +50,12 @@ export const addPostImage = (postId, file) => {
       Authorization: `Bearer ${token}`
     } }
   );
+};
+export const fetchFilteredPosts = params => {
+  const token = localStorage.getItem('token');
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([k,v]) => { if (v !== undefined && v !== '') { query.append(k, v instanceof Date ? formatISO(v) : v); }});
+  return axios.get(`${API_URL}/posts/filter-sort?${query.toString()}`, { headers: {
+    Authorization: `Bearer ${token}`
+  } });
 };
