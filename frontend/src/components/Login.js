@@ -62,6 +62,11 @@ export default function Login() {
         Login with Google
       </button>
       <p>
+        <Link to="/auth/register">
+          Create account
+        </Link>
+      </p>
+      <p>
         <Link to="/auth/forgot-password">
           Forgot Password?
         </Link>
