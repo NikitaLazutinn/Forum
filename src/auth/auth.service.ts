@@ -114,7 +114,7 @@ export class AuthService {
         token: JWToken,
       };
     } catch (error) {
-      throw error;
+      console.log('nooo');
     }
   }
 

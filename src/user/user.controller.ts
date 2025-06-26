@@ -12,7 +12,7 @@ import { UserService } from './user.service';
 import {
   Update_UserDto,
 } from './dto/create-user.dto';
-import { AuthGuard } from 'src/guards';
+import { AuthGuardCustom } from 'src/guards';
 
 @Controller('user')
 export class UserController {
@@ -38,7 +38,7 @@ export class UserController {
     return this.userService.follwing(+id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch('edit/:id')
   async update(
     @Param('id') id: number,
@@ -49,14 +49,14 @@ export class UserController {
     return this.userService.update_user(+id, UpdateUserDto, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Delete('delete/:id')
   async remove(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;
     return this.userService.remove(+id, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch('adminStatus/:id')
   async adminStatus(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;

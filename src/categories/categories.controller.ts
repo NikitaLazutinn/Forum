@@ -9,7 +9,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/guards';
+import { AuthGuardCustom } from 'src/guards';
 import { CategoriesService } from './categories.service';
 import { CreateDto, UpdateDto } from './dto/create.dto';
 
@@ -17,7 +17,7 @@ import { CreateDto, UpdateDto } from './dto/create.dto';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Post('create')
   async create(@Body() createDto: CreateDto, @Req() request) {
     const tokenData = request.user;
@@ -34,7 +34,7 @@ export class CategoriesController {
     return this.categoriesService.findById(+id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch('edit/:id')
   async update(
     @Param('id') id: number,
@@ -45,7 +45,7 @@ export class CategoriesController {
     return this.categoriesService.update_category(+id, updateDto, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Delete('delete/:id')
   async remove(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;

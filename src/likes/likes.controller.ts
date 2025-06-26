@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { LiklesService } from './likes.service';
 import { LikeDto } from './dto/create.dto';
-import { AuthGuard } from 'src/guards';
+import { AuthGuardCustom } from 'src/guards';
 
 @Controller('likes')
 export class LiklesController {
@@ -12,7 +12,7 @@ export class LiklesController {
     return this.liklesService.showLikes(+id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch('like/:id')
   async like(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;

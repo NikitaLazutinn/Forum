@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { StatisticsService } from './statistcs.service';
 import { Request } from 'express';
-import { AuthGuard } from 'src/guards';
+import { AuthGuardCustom } from 'src/guards';
 import { CreateActionDto } from './dto/create-statistc.dto';
 
 @Controller('statistics')
@@ -16,7 +16,7 @@ export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   async getStatistics(
     @Query() query: CreateActionDto,
     @Req() request,

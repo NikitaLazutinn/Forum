@@ -11,14 +11,14 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { CommentService } from './comments.service';
-import { AuthGuard } from 'src/guards';
+import { AuthGuardCustom } from 'src/guards';
 import { AddCommentDto, DeleteCommentDto, EditCommentDto, ShowCommentDto } from './dto/create.dto';
 
 @Controller('comment')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Post('add/:id')
   async add_comment(@Param('id') id: number, @Body() addCommentDto: AddCommentDto, @Req() request) {
     const tokenData = request.user;
@@ -30,7 +30,7 @@ export class CommentController {
     return this.commentService.showComments(+id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch('edit/:id')
   async update_comment(
     @Param('id') id: number,
@@ -41,7 +41,7 @@ export class CommentController {
     return this.commentService.editComment(+id, editCommentDto, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Delete('delete/:id')
   async delete_comment(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;

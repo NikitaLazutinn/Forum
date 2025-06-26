@@ -16,42 +16,42 @@ import {
   CreatePostDto,
   UpdatePostDto,
 } from './dto/create-post.dto';
-import { AuthGuard } from 'src/guards';
+import { AuthGuardCustom } from 'src/guards';
 import { PostFilterDto } from './dto/filter.dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Post('create')
   create(@Body() createPostDto: CreatePostDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.create(createPostDto, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Get('filter-sort')
    async getFilteredPosts(@Query() filterDto: PostFilterDto, @Req() request) {
     const tokenData = request.user;
     return this.postsService.filterAndSortPosts(filterDto, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Get('all')
   findAll(@Req() request) {
     const tokenData = request.user;
     return this.postsService.findAll(tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Get('id/:id')
   async findOne(@Param('id') id: string, @Req() request) {
     const tokenData = request.user;
     return this.postsService.findOne(+id, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Patch('edit/:id')
   async update(
     @Param('id') id: number,
@@ -62,7 +62,7 @@ export class PostsController {
     return this.postsService.update(+id, updatePostDto, tokenData);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardCustom)
   @Delete('delete/:id')
   async remove(@Param('id') id: number, @Req() request) {
     const tokenData = request.user;
