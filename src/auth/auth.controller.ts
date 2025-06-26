@@ -22,17 +22,17 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuth() {}
 
-  // @Get('google/redirect')
-  // @UseGuards(AuthGuard('google'))
-  // async googleAuthRedirect(@Req() req, 
-  // @Res() res) {
-  //   console.log('redirect');
-  //  // const token_data = req.user;
-  //   //const {accessToken} = await this.authService.googleAuth(token_data);
-  //   //return res.redirect(`${process.env.LINK_FRONTEND}auth/googleCallback?token=${accessToken}`);
-  //   //return await this.authService.googleAuth(token_data);
+  @Get('google/redirect')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req, 
+  @Res() res) {
 
-  // }
+    const token_data = req.user;
+    const {accessToken} = await this.authService.googleAuth(token_data);
+
+    return res.redirect(`${process.env.LINK_FRONTEND}/auth/googleCallback?token=${accessToken}`);
+
+  }
 
   @Post('signUp')
   async signupUser(

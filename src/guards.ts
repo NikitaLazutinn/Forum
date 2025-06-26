@@ -25,7 +25,6 @@ export class AuthGuardCustom implements CanActivate {
       request.user = decoded;
       return true;
     } catch (error) {
-      console.log(authHeader);
       throw new UnauthorizedException('Invalid token');
     }
   }
