@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -9,12 +9,31 @@ import PostsList from './components/PostsList';
 import AddPostImage from './components/AddPostImage';
 import FilterSortPosts from './components/FilterSortPosts';
 import GoogleCallback from './components/GoogleCallback';
+import Header from './components/header';
+import { myProfile } from './services/api';
 
 
 function App() {
+  const [user, setUser] = useState(null);
   const token = localStorage.getItem('token');
 
+  useEffect(() => {
+    if (token) {
+      myProfile()
+        .then(res => {
+          setUser(res.data)
+          console.log(res.data);
+        }
+      )
+        .catch(() => {
+          window.location.href = 'auth/login';
+        });
+    }
+  }, [token]);
+
   return (
+    <>
+    <Header user={user} /> 
     <Routes>
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/register" element={<Register />} />
@@ -30,6 +49,7 @@ function App() {
         element={<Navigate to="/posts/all" />}
       />
     </Routes>
+    </>
   );
 }
 

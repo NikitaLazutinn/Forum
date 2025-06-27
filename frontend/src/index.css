@@ -19,6 +19,27 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
   }
 
+  .postsList {
+    max-width: 1300px;
+    margin: 60px auto;
+
+
+    
+  }
+
+  .badge {
+    display: inline-block;
+    background: #e0f2ff;
+    color: #007bff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    margin-right: 6px;
+
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+
   .error {
     color: red;
   }

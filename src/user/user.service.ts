@@ -4,6 +4,7 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { Delete_UserDto, Update_UserDto } from './dto/create-user.dto';
 import { validate } from 'class-validator';
@@ -25,6 +26,22 @@ export class UserService {
     const errors = await validate(registerDto);
     if (errors.length > 0) {
       throw new BadRequestException('Invalid data format');
+    }
+  }
+
+  async me(token){
+
+    try{
+      const user_id = token['id'];
+      
+      const {user} = await this.findById(user_id);
+
+      return {
+        statusCode: 200,
+        user,
+      };
+    }catch{
+      throw new InternalServerErrorException();
     }
   }
 

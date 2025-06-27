@@ -77,3 +77,10 @@ export const fetchFilteredPosts = params => {
     Authorization: `Bearer ${token}`
   } });
 };
+export const myProfile = () =>
+{
+  const token = localStorage.getItem('token');
+  return http.get(`${API_URL}/user/me`, { headers: {
+    Authorization: `Bearer ${token}`
+  } });
+}

@@ -23,6 +23,13 @@ export class UserController {
     return this.userService.findAll();
   }
 
+    @UseGuards(AuthGuardCustom)
+    @Get('me')
+    async me(@Req() request) {
+      const tokenData = request.user;
+      return await this.userService.me(tokenData);
+    }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.userService.findById(+id);
