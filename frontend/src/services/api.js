@@ -84,3 +84,5 @@ export const myProfile = () =>
     Authorization: `Bearer ${token}`
   } });
 }
+
+export const fetchUserById = id => http.get(`${API_URL}/user/${id}`);

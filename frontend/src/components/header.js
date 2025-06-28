@@ -13,15 +13,21 @@ export default function Header({ user }) {
 
       <div className="user-area">
         {user ? (
-          <Link to="/profile">
+          <Link to={`/users/${user.id}`}>
             <img
-              src={user.avatarUrl}
+              src='.\avatar.jpeg'
               alt={user.name}
               className="user-avatar"
             />
           </Link>
         ) : (
-          <Link to="auth/login" className="nav-link">Login</Link>
+          <button
+            onClick={() => window.location.reload()}
+            className="nav-link"
+            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            Profile
+        </button>
         )}
       </div>
     </header>

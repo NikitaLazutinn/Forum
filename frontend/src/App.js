@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import PublicLayout from './layouts/PublicLayout';
+import ProtectedLayout from './layouts/ProtectedLayout';
 import Login from './components/Login';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
@@ -9,48 +11,45 @@ import PostsList from './components/PostsList';
 import AddPostImage from './components/AddPostImage';
 import FilterSortPosts from './components/FilterSortPosts';
 import GoogleCallback from './components/GoogleCallback';
-import Header from './components/header';
+import UserProfile from './components/UserProfile';
+
 import { myProfile } from './services/api';
 
-
-function App() {
+export default function App() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
     if (token) {
       myProfile()
-        .then(res => {
-          setUser(res.data)
-          console.log(res.data);
-        }
-      )
+        .then(res => setUser(res.data))
         .catch(() => {
-          window.location.href = 'auth/login';
+          localStorage.removeItem('token');
+          navigate('/auth/login');
         });
     }
-  }, [token]);
+  }, [token, navigate]);
 
   return (
-    <>
-    <Header user={user} /> 
     <Routes>
-      <Route path="/auth/login" element={<Login />} />
-      <Route path="/auth/register" element={<Register />} />
-      <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-      <Route path="/auth/reset-password" element={<ResetPassword />} />
-      <Route path="/posts/create" element={<CreatePost />} />
-      <Route path="/posts/all" element={<PostsList/>} />
-      <Route path="/posts/:postId/add-image" element={<AddPostImage/>} />
-      <Route path="posts/filter-sort" element={<FilterSortPosts/>} />
-      <Route path="auth/googleCallback" element={<GoogleCallback/>} />
-      <Route
-        path="/"
-        element={<Navigate to="/posts/all" />}
-      />
+      <Route element={<PublicLayout />}>
+        <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/register" element={<Register />} />
+        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        <Route path="/auth/reset-password" element={<ResetPassword />} />
+        <Route path="/auth/googleCallback" element={<GoogleCallback />} />
+      </Route>
+
+      <Route element={<ProtectedLayout user={user?.user} />}>
+        <Route path="/posts/create" element={<CreatePost />} />
+        <Route path="/posts/all" element={<PostsList />} />
+        <Route path="/posts/:postId/add-image" element={<AddPostImage />} />
+        <Route path="/posts/filter-sort" element={<FilterSortPosts />} />
+        <Route path="/users/:id" element={<UserProfile />} />
+      </Route>
+
+      <Route path="/" element={<Navigate to="/posts/all" />} />
     </Routes>
-    </>
   );
 }
-
-export default App;
