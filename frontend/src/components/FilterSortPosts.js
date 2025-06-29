@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { fetchFilteredPosts } from '../services/api';
 import { toast } from 'react-toastify';
+import Post from './sub_components/Post';
 
 
 export default function FilterSortPosts() {
@@ -57,12 +58,9 @@ export default function FilterSortPosts() {
       </form>
       {error && <p role="alert" className="error">{error}</p>}
       {
-        <ul style={{ listStyle: 'none', padding: 0, marginTop: '24px' }}>
-          {posts.map(p => (
-            <li key={p.id} style={{ border: '1px solid #ddd', borderRadius: '4px', padding: '12px', marginBottom: '12px' }}>
-              <h3>{p.title}</h3>
-              <p>{p.content}</p>
-            </li>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {posts.map(post => (
+          <Post key={post.id} post={post} />
           ))}
         </ul>
       }
