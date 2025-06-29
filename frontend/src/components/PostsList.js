@@ -25,7 +25,7 @@ export default function PostsList() {
         <p>No posts yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
-         {posts.map(post => (
+         {[...posts].reverse().map(post => (
           <Post key={post.id} post={post} />
          ))}
        </ul>

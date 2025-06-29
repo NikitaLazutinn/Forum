@@ -4,7 +4,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 24px;
-    background: #fff;
+    background: #001950;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     position: sticky;
     top: 0;
@@ -17,13 +17,13 @@
   }
   
   .nav-link {
-    color: #333;
+    color: #ffffff;
     text-decoration: none;
     font-weight: 500;
   }
   
   .nav-link:hover {
-    color: #007bff;
+    color: #9d9d9d;
   }
   
   .user-area {

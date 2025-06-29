@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { fetchCategories, createPost } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreatePost() {
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({ title: '', content: '', categoriesId: [] });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -29,6 +31,7 @@ export default function CreatePost() {
     setError('');
     try {
       await createPost(form);
+      navigate("/");
     } catch (err) {
         const message = err.response.data.message;
         setError(message);

@@ -2,6 +2,9 @@
 import React from 'react';
 
 export default function Post({ post }) {
+  console.log(post);
+  const iso = post.createdAt;
+  const date = iso.split('T')[0];
 
   return (
     <li
@@ -25,7 +28,7 @@ export default function Post({ post }) {
         }}
       >
         <h3 style={{ margin: 0 }}>{post.title}</h3>
-        <p style={{ margin: 0 }}>{post.author.name}</p>
+        <p style={{ margin: 0 }}>{post?.author?.name}</p>
       </div>
 
       <p style={{ margin: 0 }}>{post.content}</p>
@@ -42,7 +45,12 @@ export default function Post({ post }) {
       ))}
         </p>
       )}
+
+      <p>
+        {date}  
+      </p>
       </div>
+      
     </li>
   );
 }
