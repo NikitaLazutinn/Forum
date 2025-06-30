@@ -26,12 +26,16 @@ export class ViewsService {
       });
 
       if (!existing) {
-        await this.prisma.views.create({
-          data: {
-            postId: post.id,
-            userId: user.id,
-          },
-        });
+        try{
+          await this.prisma.views.create({
+            data: {
+              postId: post.id,
+              userId: user.id,
+            },
+          });
+        }catch{
+          
+        }  
       }
     }
 

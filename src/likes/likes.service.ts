@@ -14,12 +14,15 @@ export class LiklesService {
     private postsService: PostsService,
   ) {}
 
-  async showLikes(postId: number) {
+  async showLikes(postId: number, token_data) {
+    const userId = token_data.id;
     const likes = await this.prisma.like.findMany({ where: { postId } });
+    const myLike = likes.some(like => like.userId === userId);
 
     return {
       statusCode: 200,
       likes: likes,
+      I_Liked: myLike
     };
   }
 
@@ -30,8 +33,10 @@ export class LiklesService {
     const exist = await this.prisma.like.findFirst({
       where: { userId, postId },
     });
+    
 
     if (exist === null) {
+
       await this.prisma.like.create({
         data: {
           postId,

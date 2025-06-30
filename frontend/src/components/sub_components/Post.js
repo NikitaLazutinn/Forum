@@ -1,8 +1,40 @@
 // src/components/PostItem.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Like, showLikes } from '../../services/api';
 
 export default function Post({ post }) {
-  console.log(post);
+  const [likes, setLikes] = useState(0);
+  const [myLike, setMyLike] = useState(false);
+
+  const activeStyle = {
+    background: '#FF1010',
+    color: '#fff',
+  };
+  const inactiveStyle = {
+    background: '#ccc',
+    color: '#666',
+  };
+
+  useEffect(() => {
+      showLikes(post.id)
+        .then(res => {
+          setLikes(res.data.likes.length)
+          console.log(res.data);
+          setMyLike(res.data.I_Liked)
+        })
+    }, [post.id]);
+
+    const handleLike = () => {
+      Like(post.id)            
+        .then(() => showLikes(post.id))  
+        .then(res => {setLikes(res.data.likes.length)
+          setMyLike(res.data.I_Liked)
+        })
+        .catch(err => console.error(err));
+    };
+      
+    
+
   const iso = post.createdAt;
   const date = iso.split('T')[0];
 
@@ -49,8 +81,14 @@ export default function Post({ post }) {
       <p>
         {date}  
       </p>
+      <div className= 'right'>
+        <button onClick={handleLike} style={{width : '10%', background: '#aeaeae',
+          ...(myLike ? activeStyle : inactiveStyle)
+        }}>Like {likes}</button>
+      </div>
+
       </div>
       
     </li>
   );
-}
+};

@@ -86,3 +86,28 @@ export const myProfile = () =>
 }
 
 export const fetchUserById = id => http.get(`${API_URL}/user/${id}`);
+
+export const showLikes = id => {
+  const token = localStorage.getItem('token');
+  return http.get(
+    `${API_URL}/likes/show_likes/${id}`,                               
+    {                               
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
+export const Like = id => {
+  const token = localStorage.getItem('token');
+  return http.patch(
+    `${API_URL}/likes/like/${id}`,  
+    {},                             
+    {                               
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
