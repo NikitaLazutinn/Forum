@@ -1,10 +1,13 @@
 // src/components/PostItem.js
 import React, { useEffect, useState } from 'react';
-import { Like, showLikes } from '../../services/api';
+import { fetchComments, Like, showLikes } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 export default function Post({ post }) {
   const [likes, setLikes] = useState(0);
   const [myLike, setMyLike] = useState(false);
+  const [comments, setComments] = useState(0);
+  const navigate = useNavigate();
 
   const activeStyle = {
     background: '#FF1010',
@@ -19,8 +22,11 @@ export default function Post({ post }) {
       showLikes(post.id)
         .then(res => {
           setLikes(res.data.likes.length)
-          console.log(res.data);
           setMyLike(res.data.I_Liked)
+        })
+        fetchComments(post.id)
+        .then(res => {
+          setComments(res.data.comments.length)
         })
     }, [post.id]);
 
@@ -31,6 +37,12 @@ export default function Post({ post }) {
           setMyLike(res.data.I_Liked)
         })
         .catch(err => console.error(err));
+    };
+
+    const Comments = () => {
+      console.log(post.id);
+      const link = `/posts/${post.id}/comments`;
+      navigate(link);
     };
       
     
@@ -85,6 +97,8 @@ export default function Post({ post }) {
         <button onClick={handleLike} style={{width : '10%', background: '#aeaeae',
           ...(myLike ? activeStyle : inactiveStyle)
         }}>Like {likes}</button>
+
+        <button onClick={Comments} style={{width : '10%'}}>Comments {comments}</button>
       </div>
 
       </div>

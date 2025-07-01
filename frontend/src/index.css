@@ -79,7 +79,8 @@
   }
 
   .right {
-    text-align: right;      /* все, що inline/inline-block, буде по центру */
+    text-align: right; 
+    margin-right: 15px;     /* все, що inline/inline-block, буде по центру */
   }
   
   /* Links */

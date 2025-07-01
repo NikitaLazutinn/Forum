@@ -14,6 +14,7 @@ import GoogleCallback from './components/GoogleCallback';
 import UserProfile from './components/UserProfile';
 
 import { myProfile } from './services/api';
+import CommentsPage from './components/CommentsPage';
 
 export default function App() {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="/posts/:postId/add-image" element={<AddPostImage />} />
         <Route path="/posts/filter-sort" element={<FilterSortPosts />} />
         <Route path="/users/:id" element={<UserProfile />} />
+        <Route path="/posts/:postId/comments" element={<CommentsPage />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/posts/all" />} />

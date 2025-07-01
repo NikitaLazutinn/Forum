@@ -10,6 +10,7 @@ import { plainToClass } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
 import { AddCommentDto, DeleteCommentDto, EditCommentDto, ShowCommentDto } from './dto/create.dto';
 import { PostsService } from 'src/posts/posts.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class CommentService {
@@ -17,6 +18,7 @@ export class CommentService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => PostsService))
     private postsService: PostsService,
+    private userService: UserService
   ) {}
 
   async checkData(dto, data) {
@@ -31,6 +33,9 @@ export class CommentService {
   async addComment(postId: number, data: AddCommentDto, token_data) {
     await this.checkData(AddCommentDto, data);
 
+    const user_id = token_data['id'];
+    const {user} = await this.userService.findById(user_id);
+
     await this.postsService.findOne(postId, token_data);
 
     const { content } = data;
@@ -41,6 +46,7 @@ export class CommentService {
         postId,
         userId,
         content,
+        userName: user.name
       },
     });
 

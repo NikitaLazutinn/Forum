@@ -109,6 +109,7 @@ model comment {
   id        Int      @id @default(autoincrement())
   content   String
   userId    Int
+  userName  String?
   postId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())

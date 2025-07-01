@@ -111,3 +111,39 @@ export const Like = id => {
     }
   );
 };
+
+export const addComment = (postId, data) => {
+  const token = localStorage.getItem('token');
+  return http.post(
+    `${API_URL}/comment/add/${postId}`, 
+    data,                               
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
+
+export const fetchComments = postId =>
+{
+  const token = localStorage.getItem('token');
+  return http.get(
+    `${API_URL}/comment/all/${postId}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}
+
+export const editComment = (commentId, data) =>
+  {
+    const token = localStorage.getItem('token');
+    return http.patch(
+      `${API_URL}/comment/edit/${commentId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+  }
+
+export const deleteComment = commentId =>
+  {
+    const token = localStorage.getItem('token');
+    return http.delete(
+      `${API_URL}/comment/delete/${commentId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+  }

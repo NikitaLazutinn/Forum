@@ -3,9 +3,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import {CommentController } from './comments.controller';
 import { CommentService } from './comments.service';
 import { PostsModule } from 'src/posts/posts.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [PrismaModule,forwardRef(() => PostsModule)],
+  imports: [PrismaModule,UserModule, forwardRef(() => PostsModule)],
   controllers: [CommentController],
   providers: [CommentService],
   exports: [CommentService],
