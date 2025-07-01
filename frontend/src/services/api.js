@@ -147,3 +147,5 @@ export const deleteComment = commentId =>
       { headers: { Authorization: `Bearer ${token}` } }
     );
   }
+
+  export const seed = () => http.get(`${API_URL}/auth/post`); 

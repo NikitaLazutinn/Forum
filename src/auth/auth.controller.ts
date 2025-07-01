@@ -13,10 +13,16 @@ import { RegisterDto, RegisterResponseDto } from './dto/RegisterDto';
 import { logInDto, logInResponceDto } from './dto/logInDto';
 import { linkResetResp, ResetDto } from './dto/resetDto';
 import { AuthGuard } from '@nestjs/passport';
+import { seed } from './seed';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('seed')
+  async seed(){
+    await seed();
+  }
 
   @Get('google')
   @UseGuards(AuthGuard('google'))

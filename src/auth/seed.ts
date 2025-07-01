@@ -4,7 +4,7 @@ import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function seed() {
   // -------------------------------------------------
   // 1. Seed reference data (ROLES & CATEGORIES)
   // -------------------------------------------------
@@ -136,7 +136,7 @@ async function main() {
   );
 }
 
-main()
+seed()
   .catch((e) => {
     console.error('Seed failed:', e);
     process.exit(1);

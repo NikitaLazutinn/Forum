@@ -15,6 +15,7 @@ import UserProfile from './components/UserProfile';
 
 import { myProfile } from './services/api';
 import CommentsPage from './components/CommentsPage';
+import Seed from './components/seed';
 
 export default function App() {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="/posts/filter-sort" element={<FilterSortPosts />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="/posts/:postId/comments" element={<CommentsPage />} />
+        <Route path="/seed" element={<Seed />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/posts/all" />} />

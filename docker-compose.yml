@@ -1,29 +1,35 @@
-version: "3.8"
+version: '3.8'
 services:
-  app:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: Forum
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  backend:
     build:
       context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: "postgresql://postgres.sgsskuzrpjsnnefjgldb:mXw@3XNuEx0@aws-0-eu-central-1.pooler.supabase.com:5432/postgres"
-    volumes:
-      - .:/usr/src/app
+      dockerfile: Dockerfile.backend
+    env_file:
+      - .env
     depends_on:
       - db
-
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: database
     ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile.frontend
+    depends_on:
+      - backend
+    ports:
+      - "3001:3001"
 
 volumes:
-  db_data:
+  db-data:
