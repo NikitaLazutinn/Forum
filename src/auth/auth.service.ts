@@ -110,8 +110,8 @@ export class AuthService {
       return {
         statusCode: 201,
         message: 'User created successfully',
-        properties: { name: user.name, email: user.email },
-        token: JWToken,
+        name: name,
+        accessToken: JWToken,
       };
     } catch (error) {
       console.log('nooo');
