@@ -26,7 +26,7 @@ export default function ResetPassword() {
     try {
       await resetPassword(token, { password: form.password, confirmPassword: form.confirmPassword });
       alert('Password reset successful!');
-      navigate('auth/login');
+      navigate('/auth/login');
     } catch (err) {
       const message = err.response.data.message;
       setError(message);

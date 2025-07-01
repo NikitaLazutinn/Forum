@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../services/api';
+import { googleLogin, registerUser } from '../services/api';
 
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -34,6 +34,7 @@ export default function Register() {
           )}
         <button type="submit">Register</button>
       </form>
+      <button onClick={googleLogin}>Continue with Google</button>
     </div>
   );
 }

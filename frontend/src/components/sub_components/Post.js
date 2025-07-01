@@ -1,9 +1,11 @@
 // src/components/PostItem.js
 import React, { useEffect, useState } from 'react';
 import { fetchComments, Like, showLikes } from '../../services/api';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Post({ post }) {
+  const userLink = `/users/${post.author?.id}`
+  
   const [likes, setLikes] = useState(0);
   const [myLike, setMyLike] = useState(false);
   const [comments, setComments] = useState(0);
@@ -72,7 +74,7 @@ export default function Post({ post }) {
         }}
       >
         <h3 style={{ margin: 0 }}>{post.title}</h3>
-        <p style={{ margin: 0 }}>{post?.author?.name}</p>
+        <Link to= {userLink} style={{ margin: 0 }}>{post?.author?.name}</Link>
       </div>
 
       <p style={{ margin: 0 }}>{post.content}</p>
