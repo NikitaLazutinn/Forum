@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchComments, addComment, editComment, deleteComment } from '../services/api';
-import { toast } from 'react-toastify';
 
 export default function CommentsPage() {
   const { postId } = useParams();
@@ -30,11 +29,9 @@ export default function CommentsPage() {
     if (!newText.trim()) return;
     addComment(postId, { content: newText })
       .then(() => {
-        toast.success('Comment added');
         setNewText('');
         loadComments();
       })
-      .catch(err => toast.error(err.response?.data?.message || 'Add failed'));
   };
 
   const startEdit = (id, text) => {
@@ -46,7 +43,6 @@ export default function CommentsPage() {
     if (!editingText.trim()) return;
     editComment(id, { content: editingText })
       .then(() => {
-        toast.success('Comment updated');
         setEditingId(null);
         setEditingText('');
         loadComments();
@@ -56,7 +52,6 @@ export default function CommentsPage() {
   const handleDelete = id => {
     deleteComment(id)
       .then(() => {
-        toast.success('Comment deleted');
         loadComments();
       })
   };

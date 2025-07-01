@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { fetchFilteredPosts } from '../services/api';
-import { toast } from 'react-toastify';
 import Post from './sub_components/Post';
 
 
@@ -24,7 +23,7 @@ export default function FilterSortPosts() {
       setPosts((await fetchFilteredPosts(params)).data);
     } catch (err) {
       const msg = err.response?.data?.message || 'Filter failed';
-      setError(msg); toast.error(msg);
+      setError(msg);
     }
   };
 
