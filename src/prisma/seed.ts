@@ -4,7 +4,7 @@ import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-export async function seed() {
+async function seed() {
   // -------------------------------------------------
   // 1. Seed reference data (ROLES & CATEGORIES)
   // -------------------------------------------------
