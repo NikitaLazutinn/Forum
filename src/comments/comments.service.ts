@@ -108,7 +108,7 @@ export class CommentService {
       throw new BadRequestException('Therere is no comment with this id');
     }
 
-    if (token_data['roleId'] !== 1 && token_data['id'] !== comm.authorId) {
+    if (token_data['roleId'] !== 1 && token_data['id'] !== comm.userId) {
       throw new NotFoundException();
     }
 

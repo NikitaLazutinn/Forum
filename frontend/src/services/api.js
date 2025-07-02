@@ -135,6 +135,7 @@ export const editComment = (commentId, data) =>
     const token = localStorage.getItem('token');
     return http.patch(
       `${API_URL}/comment/edit/${commentId}`,
+      data,
       { headers: { Authorization: `Bearer ${token}` } }
     );
   }
